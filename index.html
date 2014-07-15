@@ -147,7 +147,7 @@ html,body {
 		var usernameInput = document.getElementById("usernameInput");
 		var time = getTime();
 		
-		var message = "[" + usernameInput.value + time + "] " + messageTextarea.value;
+		var message = "[" + usernameInput.value + " " + time + "]&zwnj;&zwnj  " + messageTextarea.value;
 		message = cleanInput(message);
 		socket.emit('chat message', message);
 		messageTextarea.value = "";
@@ -156,8 +156,8 @@ html,body {
 	
 	socket.on('chat message', function(msg){
 			var chatBoxDiv = document.getElementById("chatBoxDiv");
-			chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP'><span class='messageInfoSpan'></span>" + msg + "</p>"
-			var chatBoxDiv = document.getElementById("chatBoxDiv");
+			var res = msg.split('&zwnj;&zwnj');
+			chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP'><span class='messageInfoSpan'>" + res[0] + "</span>" + res[1] + "</p>"
 			chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 		});
 		
@@ -165,7 +165,7 @@ html,body {
 		return input.replace(/(<([^>]+)>)/ig,"");
 	}
 	
-		function getTime(){
+	function getTime(){
 	
 		var date = new Date();
 		var hour = date.getHours();
