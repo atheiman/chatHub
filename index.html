@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<!--
+  Chris Delpire and Austin Heiman ChatBucket UI HTML.
+-->
+<html>
+
+<head>
+<title>Chat v2</title>
+<link rel="stylesheet" href="./octicons/octicons.css">
+<style>
+html,body {
+  height:100%;
+  margin:0px;
+  min-width:750px;
+  overflow-y:auto;
+  min-height:300px;
+  font-size:100%;
+  font-family:arial;
+  background-color:rgb(147, 191, 114);
+}
+/*input {*/
+/*  margin:0px;*/
+/*}*/
+.column {
+  float:left;
+  margin:0px;
+  border:0px;
+  padding:0px;
+  height:100%;
+}
+#leftColumn {
+  width:calc(100% - 250px);
+  /*background-color:rgb(114, 178, 191);*/
+}
+.column div {
+  margin:6px;
+  border:1px solid black;
+  padding:6px;
+}
+#chatBoxDiv {
+  height:calc(100% - 114px);
+  overflow-y:scroll;
+}
+#chatBoxDiv p {
+  margin:0px;
+  border:0px;
+  padding:0px;
+  margin-bottom:5px;
+}
+.messageInfoSpan {
+  color:gray;
+  width:500px;
+}
+#messageTextarea {
+  width:calc(100% - 6px);
+  margin:0px;
+  border:1px solid black;
+  resize:none;
+  font-family:arial;
+}
+#rightColumn {
+  width:250px;
+  overflow-y:auto;
+  /*background-color:rgb(191, 114, 118);*/
+}
+#rightColumn div {
+  margin-left:0px;
+}
+#roomMembersP,#roomsList {
+  margin: 6px 0px 0px 12px;
+  border:0px;
+  padding:0px;
+}
+#roomSearchInput {
+  width:calc(100% - 4px);
+}
+</style>
+<script>
+	
+	function testFunction(){
+		console.log("it worked");
+	}
+	
+</script>
+</head>
+
+<body id='myBody'>
+<div id='leftColumn' class='column'>
+  <div id='chatBoxDiv'>
+    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:55am] </span>Good morning, Bromego.</p>
+    <p class='messageP'><span class='messageInfoSpan'>[Chris 8:57am] </span>What's going on?</p>
+    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:57am] </span>I made some updates to the UI and had some ideas.</p>
+    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:58am] </span>We need color and the buttons/options related to the message sending can go below it.</p>
+    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:55am] </span>Good morning, Bromego.</p>
+    <p class='messageP'><span class='messageInfoSpan'>[Chris 8:57am] </span>What's going on?</p>
+    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:57am] </span>I made some updates to the UI and had some ideas.</p>
+    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:58am] </span>We need color and the buttons/options related to the message sending can go below it.</p>
+    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:55am] </span>Good morning, Bromego.</p>
+    <p class='messageP'><span class='messageInfoSpan'>[Chris 8:57am] </span>What's going on?</p>
+    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:57am] </span>I made some updates to the UI and had some ideas.</p>
+    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:58am] </span>We need color and the buttons/options related to the message sending can go below it.</p>
+  </div>
+  <div id='sendMessageDiv'>
+    <textarea id='messageTextarea' rows='2' placeholder='Send a message...'></textarea>
+    <select id='fontSelect'>
+      <option>Arial</option>
+      <option>Monospace</option>
+    </select>
+    <button id='sendButton' onclick="myFunction()">Send</button>
+  </div>
+</div>
+
+<div id='rightColumn' class='column'>
+  <div id='settingsDiv'>
+    <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='10' maxlength='12'><span class="octicon octicon-gear"></span>
+  </div>
+  <div id='roomMembersDiv'>
+    Currently in "Default Room"
+    <p id='roomMembersP'>
+      Austin<br>
+      Chris<br>
+    </p>
+  </div>
+  <div id='roomsListDiv'>
+    <input type='text' id='roomSearchInput' placeholder='Search for a room...'><br>
+    Recent rooms:
+    <p id='roomsList'>
+      Java<br>
+      WebDev<br>
+      Automation<br>
+      ECA<br>
+      CTS Architects<br>
+    </p>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+
+	socket = io();
+
+	function myFunction(){
+		 
+		var messageTextarea = document.getElementById("messageTextarea");
+		var usernameInput = document.getElementById("usernameInput");
+		
+		var message = "[" + usernameInput.value + " 00:00am] " + messageTextarea.value;
+		message = cleanInput(message);
+		socket.emit('chat message', message);
+		messageTextarea.value = "";
+		//return false;
+	}
+	
+	socket.on('chat message', function(msg){
+			var chatBoxDiv = document.getElementById("chatBoxDiv");
+			chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP'><span class='messageInfoSpan'></span>" + msg + "</p>"
+			var chatBoxDiv = document.getElementById("chatBoxDiv");
+			chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
+		});
+		
+	function cleanInput(input){
+		return input.replace(/(<([^>]+)>)/ig,"");
+	}
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "chatHub",
+  "version": "0.0.2",
+  "description": "Chatting app",
+  "dependencies": {
+    "express": "4.3.1",
+    "socket.io": "1.0.2"
+  }
+}
