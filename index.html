@@ -97,7 +97,7 @@ html,body {
     <p class='messageP'><span class='messageInfoSpan'>[Austin 8:58am] </span>We need color and the buttons/options related to the message sending can go below it.</p>
   </div>
   <div id='sendMessageDiv'>
-    <textarea id='messageTextarea' rows='2' placeholder='Send a message...' onkeypress="checkEnterButton()"></textarea>
+    <textarea id='messageTextarea' rows='2' placeholder='Send a message...' onkeypress="checkEnterButton()" autofocus></textarea>
     <select id='fontSelect'>
       <option>Arial</option>
       <option>Monospace</option>
@@ -147,7 +147,7 @@ html,body {
 		var key = evnt.keyCode;
 		var messageTextarea = document.getElementById("messageTextarea");
 	
-		if (key == 13 && !evnt.shiftKey){
+		if (key == 13 && !evnt.shiftKey && document.activeElement === messageTextarea){
 			myFunction();
 			evnt.preventDefault();
 		}
@@ -194,6 +194,10 @@ html,body {
 			hour = 12;
 		
 		var minutes = date.getMinutes();
+    minutes = 12 ;
+    if (minutes < 10 ) {
+      minutes = "0" + minutes ;
+    }
 		
 		return hour + ":" + minutes + ampm;
 	}
