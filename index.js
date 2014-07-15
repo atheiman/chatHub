@@ -1,9 +1,9 @@
 var app = require('/tmp/node_modules/express')();
-var http = require('/tmp/node_modules/http').Server(app);
+var http = require('http').Server(app);
 var io = require('/tmp/node_modules/socket.io')(http);
 
 app.get('/', function(req, res){
-  res.sendfile('/tmp/index.html');
+  res.sendfile('index.html');
 });
 
 io.on('connection', function(socket){
