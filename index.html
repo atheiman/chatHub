@@ -78,16 +78,9 @@ html,body {
   width:calc(100% - 4px);
 }
 </style>
-<script>
-	
-	function testFunction(){
-		console.log("it worked");
-	}
-	
-</script>
 </head>
 
-<body id='myBody'>
+<body id='myBody' onload="main()">
 <div id='leftColumn' class='column'>
   <div id='chatBoxDiv'>
     <p class='messageP'><span class='messageInfoSpan'>[Austin 8:55am] </span>Good morning, Bromego.</p>
@@ -115,7 +108,7 @@ html,body {
 
 <div id='rightColumn' class='column'>
   <div id='settingsDiv'>
-    <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='10' maxlength='12'><span class="octicon octicon-gear"></span>
+    <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='10' maxlength='18'><span class="octicon octicon-gear"></span>
   </div>
   <div id='roomMembersDiv'>
     Currently in "Default Room"
@@ -141,6 +134,11 @@ html,body {
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
 
+	function main(){
+		var usernameInput = document.getElementById("usernameInput");
+		usernameInput.value = generateRandUsername();
+	}
+
 	socket = io();
 
 	function myFunction(){
@@ -149,7 +147,7 @@ html,body {
 		var usernameInput = document.getElementById("usernameInput");
 		var time = getTime();
 		
-		var message = "[" + usernameInput.value + " " + time + "]&zwnj;&zwnj  " + messageTextarea.value;
+		var message = "[" + usernameInput.value + " " + time + "]&zwnj;&zwnj;  " + messageTextarea.value;
 		message = cleanInput(message);
 		socket.emit('chat message', message);
 		messageTextarea.value = "";
@@ -158,7 +156,7 @@ html,body {
 	
 	socket.on('chat message', function(msg){
 			var chatBoxDiv = document.getElementById("chatBoxDiv");
-			var res = msg.split('&zwnj;&zwnj');
+			var res = msg.split('&zwnj;&zwnj;');
 			chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP'><span class='messageInfoSpan'>" + res[0] + "</span>" + res[1] + "</p>"
 			chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 		});
@@ -186,6 +184,52 @@ html,body {
 		
 		return hour + ":" + minutes + ampm;
 	}
+	
+	function generateNoun(){
+		var nounArray = [ "Cat",
+		  "Dog",
+		  "Monkey",
+		  "Cow",
+		  "Moose",
+		  "Chicken",
+		  "Platypus",
+		  "Mango",
+		  "Pirate",
+		  "Wizard",
+		  "Knight",
+		  "Box"	  ];
+		  
+		var noun = nounArray[Math.floor(Math.random() * nounArray.length)];
+		  
+		return noun;
+	}
+  
+	function generateAdj(){
+		var adjectiveArray = [ "Blue",
+		  "Red",
+		  "Metal",
+		  "Angry",
+		  "Feisty",
+		  "Sad",
+		  "Hungry",
+		  "Mellow",
+		  "Happy",
+		  "Erect",
+		  "Aroused",
+		  "Deliberate" ];
+		  
+		var adj = adjectiveArray[Math.floor(Math.random() * adjectiveArray.length)];
+		  
+		return adj;
+    }
+
+	function generateRandUsername(){
+		var adj = generateAdj();
+		var noun = generateNoun();
+
+		return adj + noun;
+	}
+
 
 </script>
 
