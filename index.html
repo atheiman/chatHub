@@ -97,7 +97,7 @@ html,body {
     <p class='messageP'><span class='messageInfoSpan'>[Austin 8:58am] </span>We need color and the buttons/options related to the message sending can go below it.</p>
   </div>
   <div id='sendMessageDiv'>
-    <textarea id='messageTextarea' rows='2' placeholder='Send a message...'></textarea>
+    <textarea id='messageTextarea' rows='2' placeholder='Send a message...' onkeypress="checkEnterButton()"></textarea>
     <select id='fontSelect'>
       <option>Arial</option>
       <option>Monospace</option>
@@ -140,6 +140,18 @@ html,body {
 	}
 
 	socket = io();
+	
+	function checkEnterButton() {
+		
+		var evnt = window.event;
+		var key = evnt.keyCode;
+		var messageTextarea = document.getElementById("messageTextarea");
+	
+		if (key == 13 && !evnt.shiftKey){
+			myFunction();
+			evnt.preventDefault();
+		}
+	}
 
 	function myFunction(){
 		 
@@ -149,6 +161,7 @@ html,body {
 		
 		var message = "[" + usernameInput.value + " " + time + "]&zwnj;&zwnj;  " + messageTextarea.value;
 		message = cleanInput(message);
+		message = message.replace(/\n/g,"<br />");
 		socket.emit('chat message', message);
 		messageTextarea.value = "";
 		//return false;
@@ -179,7 +192,7 @@ html,body {
 			ampm = "pm";
 		else if(hour == 0)
 			hour = 12;
-	
+		
 		var minutes = date.getMinutes();
 		
 		return hour + ":" + minutes + ampm;
@@ -216,7 +229,8 @@ html,body {
 		  "Happy",
 		  "Erect",
 		  "Aroused",
-		  "Deliberate" ];
+		  "Deliberate",
+		  "Frenzied" ];
 		  
 		var adj = adjectiveArray[Math.floor(Math.random() * adjectiveArray.length)];
 		  
