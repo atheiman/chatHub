@@ -1,6 +1,6 @@
-var app = require('/tmp/node_modules/express')();
+var app = require('./node_modules/express')();
 var http = require('http').Server(app);
-var io = require('/tmp/node_modules/socket.io')(http);
+var io = require('./node_modules/socket.io')(http);
 
 app.get('/', function(req, res){
   res.sendfile('index.html');
