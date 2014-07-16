@@ -104,7 +104,7 @@ html,body {
 
 <div id='rightColumn' class='column'>
   <div id='settingsDiv'>
-    <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18'><span class="octicon octicon-gear"></span>
+    <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18' onchange="myUsername = cleanInput(this.value)"><span class="octicon octicon-gear"></span>
   </div>
   <div id='roomMembersDiv'>
     Currently in "Default Room"
