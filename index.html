@@ -140,6 +140,7 @@ html,body {
     myFont = document.getElementById("fontSelect").value;
     myColor = document.getElementById("colorSelect").value;
     previousMessage = "";
+    isNewToRoom = true;
   }
   
 	function main() {
@@ -185,7 +186,10 @@ html,body {
 		});
 		
 		socket.on('whoareyou', function(msg) {
-		  socket.emit('iam', usernameInput.value);
+      if (isNewToRoom) {
+		    socket.emit('iam', usernameInput.value);
+      }
+      isNewToRoom = false;
 		});
 		
 		socket.on('joinedroom', function(msg){
