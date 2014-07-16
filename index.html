@@ -83,26 +83,28 @@ html,body {
 <body id='myBody' onload="main()">
 <div id='leftColumn' class='column'>
   <div id='chatBoxDiv'>
-    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:55am] </span>Good morning, Bromego.</p>
-    <p class='messageP'><span class='messageInfoSpan'>[Chris 8:57am] </span>What's going on?</p>
-    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:57am] </span>I made some updates to the UI and had some ideas.</p>
-    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:58am] </span>We need color and the buttons/options related to the message sending can go below it.</p>
-    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:55am] </span>Good morning, Bromego.</p>
-    <p class='messageP'><span class='messageInfoSpan'>[Chris 8:57am] </span>What's going on?</p>
-    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:57am] </span>I made some updates to the UI and had some ideas.</p>
-    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:58am] </span>We need color and the buttons/options related to the message sending can go below it.</p>
-    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:55am] </span>Good morning, Bromego.</p>
-    <p class='messageP'><span class='messageInfoSpan'>[Chris 8:57am] </span>What's going on?</p>
-    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:57am] </span>I made some updates to the UI and had some ideas.</p>
-    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:58am] </span>We need color and the buttons/options related to the message sending can go below it.</p>
+    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:58am] </span>This green is awesome! We need color and the buttons/options related to the message sending can go below it.</p>
   </div>
   <div id='sendMessageDiv'>
     <textarea id='messageTextarea' rows='2' placeholder='Send a message...' onkeypress="checkEnterButton()" autofocus></textarea>
-    <select id='fontSelect'>
-      <option>Arial</option>
-      <option>Monospace</option>
+    <select id='fontSelect' onchange='myFont = this.value'>
+      <option value='arial'>Arial</option>
+      <option value='monospace'>Monospace</option>
     </select>
-    <button id='sendButton' onclick="myFunction()">Send</button>
+    <select id='colorSelect' onchange='myColor = this.value'>
+      <option value='#000000'>Black</option>
+      <option value='#0000ff'>Blue</option>
+      <option value='#00ccff'>Cyan</option>
+      <option value='#ff0000'>Red</option>
+      <option value='#33cc33'>Green</option>
+      <option value='#ffffff'>White</option>
+      <option value='#ffff00'>Yellow</option>
+      <option value='#ffa71a'>Day[9] Yellow</option>
+      <option value='#512888'>EMAW</option>
+      <option value='#ff9900'>Caret</option>
+      <option value='#93BF72'>Oscar Green</option>
+    </select>
+    <button id='sendButton' onclick="sendMessage()">Send</button>
   </div>
 </div>
 
@@ -134,56 +136,70 @@ html,body {
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
 
-/*
-message object:
-some stuff
-*/
+	socket = io();
 
-	function main(){
-		var usernameInput = document.getElementById("usernameInput");
+  function initiateGlobals() {
+    usernameInput = document.getElementById("usernameInput");
+    messageTextarea = document.getElementById("messageTextarea");
+    chatBoxDiv = document.getElementById("chatBoxDiv");
+    myRoom = "default room set globally";
+    myFont = document.getElementById("fontSelect").value;
+    myColor = document.getElementById("colorSelect").value;
+    previousMessage = "";
+  }
+  
+	function main() {
+	  initiateGlobals();
 		usernameInput.value = generateRandUsername();
 	}
 
-	socket = io();
-	
 	function checkEnterButton() {
-		
 		var evnt = window.event;
 		var key = evnt.keyCode;
-		var messageTextarea = document.getElementById("messageTextarea");
-	
-		if (key == 13 && !evnt.shiftKey && document.activeElement === messageTextarea){
-			myFunction();
+
+		if (key == 13 && !evnt.shiftKey && document.activeElement === messageTextarea) {
+			sendMessage();
 			evnt.preventDefault();
 		}
 	}
+  
+  function buildMessageObject() {
+    var myContents = messageTextarea.value;
+    previousMessage = myContents;
+    myContents = cleanInput(myContents);
+    var myTime = getTime();
+    var messageObj = {room:myRoom , font:myFont , time:myTime ,
+      color:myColor , username:usernameInput.value , contents:myContents} ;
+    console.log("sending message:");
+    console.log(messageObj);
+    return messageObj;
+  }
 
-	function myFunction(){
-		 
-		var messageTextarea = document.getElementById("messageTextarea");
-		var usernameInput = document.getElementById("usernameInput");
-		var time = getTime();
-		
-		var message = "[" + usernameInput.value + " " + time + "]&zwnj;&zwnj;  " + messageTextarea.value;
-		message = cleanInput(message);
-		message = message.replace(/\n/g,"<br />");
-		socket.emit('chat message', message);
+	function sendMessage() {
+		var messageObj = buildMessageObject();
+		socket.emit('chat message', messageObj);
 		messageTextarea.value = "";
-		//return false;
 	}
 	
-	socket.on('chat message', function(msg){
-			var chatBoxDiv = document.getElementById("chatBoxDiv");
-			var res = msg.split('&zwnj;&zwnj;');
-			chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP'><span class='messageInfoSpan'>" + res[0] + "</span>" + res[1] + "</p>"
+	socket.on('chat message', function(messageObj) {
+	    console.log("message received:");
+	    console.log(messageObj);
+		  var messageString = "<p class='messageP' style='color:" + messageObj.color + ";font-family:" + messageObj.font + ";'><span class='messageInfoSpan'>[" + messageObj.username + " " + messageObj.time + "]</span> " + messageObj.contents + "</p>";
+			
+			chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + messageString;
 			chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 		});
 		
-	function cleanInput(input){
-		return input.replace(/(<([^>]+)>)/ig,"");
+	function cleanInput(input) {
+	  input = input.replace(/(<([^>]+)>)/ig,"");
+		input = input.replace(/\n/g,"<br />");
+		input = input.replace( /\*\*(.+?)\*\*/gm, "<b>$1</b>" );
+		input = input.replace( /\_\_(.+?)\_\_/gm, "<u>$1</u>" );
+		input = input.replace( /\*(.+?)\*/gm, "<i>$1</i>" );
+		return input;
 	}
 	
-	function getTime(){
+	function getTime() {
 	
 		var date = new Date();
 		var hour = date.getHours();
@@ -207,7 +223,7 @@ some stuff
 		return hour + ":" + minutes + ampm;
 	}
 	
-	function generateNoun(){
+	function generateNoun() {
 		var nounArray = [ "Cat",
 		  "Dog",
 		  "Monkey",
@@ -226,7 +242,7 @@ some stuff
 		return noun;
 	}
   
-	function generateAdj(){
+	function generateAdj() {
 		var adjectiveArray = [ "Blue",
 		  "Red",
 		  "Metal",
@@ -246,7 +262,7 @@ some stuff
 		return adj;
     }
 
-	function generateRandUsername(){
+	function generateRandUsername() {
 		var adj = generateAdj();
 		var noun = generateNoun();
 
