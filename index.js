@@ -8,11 +8,16 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){
 	console.log('a user connected');
-	io.emit('connect', 'a user connected');
+// 	io.emit('connect', 'a user connected');
+  io.emit('whoareyou', "");
 	
-	socket.on('chat message', function(msg){
-		console.log('message: ' + msg);
-		io.emit('chat message', msg);
+	socket.on('iam', function(username){
+	  io.emit('joinedroom', username + " has joined the room.");
+	});
+	
+	socket.on('chat message', function(messageObj){
+		console.log('message: ' + messageObj);
+		io.emit('chat message', messageObj);
 	});
 	
 	socket.on('disconnect', function(){
