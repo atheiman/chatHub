@@ -81,11 +81,11 @@ html,body {
   </div>
   <div id='sendMessageDiv'>
     <textarea id='messageTextarea' rows='2' placeholder='Send a message...' onkeypress="checkEnterButton()" autofocus></textarea>
-    <select id='fontSelect' onchange='myFont = this.value'>
+    <select id='fontSelect' onchange='fontFamilyChange()'>
       <option value='arial'>Arial</option>
       <option value='monospace'>Monospace</option>
     </select>
-    <select id='colorSelect' onchange='myColor = this.value'>
+    <select id='colorSelect' onchange='fontColorChange()'>
       <option value='#000000'>Black</option>
       <option value='#0000ff'>Blue</option>
       <option value='#00ccff'>Cyan</option>
@@ -137,8 +137,10 @@ html,body {
     messageTextarea = document.getElementById("messageTextarea");
     chatBoxDiv = document.getElementById("chatBoxDiv");
     myRoom = "default room set globally";
-    myFont = document.getElementById("fontSelect").value;
-    myColor = document.getElementById("colorSelect").value;
+    fontSelect = document.getElementById('fontSelect');
+    colorSelect = document.getElementById('colorSelect');
+    myFont = fontSelect.value;
+    myColor = fontSelect.value;
     previousMessage = "";
     isNewToRoom = true;
   }
@@ -169,6 +171,16 @@ html,body {
     console.log(messageObj);
     return messageObj;
   }
+
+function fontColorChange() {
+  myColor = colorSelect.value;
+  messageTextarea.style.color = myColor;
+}
+
+function fontFamilyChange() {
+  myFont = fontSelect.value;
+  messageTextarea.style.fontFamily = myFont;
+}
 
 	function sendMessage() {
 		var messageObj = buildMessageObject();
