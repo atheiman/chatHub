@@ -104,7 +104,7 @@ html,body {
 
 <div id='rightColumn' class='column'>
   <div id='settingsDiv'>
-    <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='10' maxlength=''><span class="octicon octicon-gear"></span>
+    <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18'><span class="octicon octicon-gear"></span>
   </div>
   <div id='roomMembersDiv'>
     Currently in "Default Room"
@@ -134,6 +134,7 @@ html,body {
 
   function initiateGlobals() {
     usernameInput = document.getElementById("usernameInput");
+    myUsername = usernameInput.value;
     messageTextarea = document.getElementById("messageTextarea");
     chatBoxDiv = document.getElementById("chatBoxDiv");
     myRoom = "default room set globally";
@@ -165,8 +166,9 @@ html,body {
     previousMessage = myContents;
     myContents = cleanInput(myContents);
     var myTime = getTime();
+    myUsername = cleanInput(myUsername);
     var messageObj = {room:myRoom , font:myFont , time:myTime ,
-      color:myColor , username:usernameInput.value , contents:myContents} ;
+      color:myColor , username:myUsername , contents:myContents} ;
     console.log("sending message:");
     console.log(messageObj);
     return messageObj;
@@ -283,8 +285,8 @@ function fontFamilyChange() {
 	function generateRandUsername() {
 		var adj = generateAdj();
 		var noun = generateNoun();
-
-		return adj + noun;
+                myUsername = adj + noun;
+		return myUsername;
 	}
 
 
