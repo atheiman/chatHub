@@ -213,6 +213,7 @@ function initiateGlobals() {
 function main() {
     initiateGlobals();
     usernameInput.value = generateRandUsername();
+	previousUsername = myUsername;
 }
 
 function checkEnterButton() {
@@ -305,6 +306,7 @@ function sendMessage() {
 	
 	
 	socket.on('disconnected', function(userId){
+		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP' style='color:#545454; text-align: center;'>" + oldName + " has changed his/her name to " + joinObj.username + ".</p>";
 		delete usernames[userId];
 		var node = document.getElementById(userId);
 		node.parentNode.removeChild(node);
