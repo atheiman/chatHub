@@ -103,9 +103,10 @@ h1 , h2 , h3 , h4 {
     padding:0px;
     margin:0px;
 }
-li {
+li.noBullet {
     list-style-type: none;
 }
+
 </style>
 </head>
 
@@ -171,13 +172,13 @@ li {
     <div id='roomsListDiv'>
         <input type='text' id='roomSearchInput' placeholder='Search for a room...'><br>
         Recent rooms:
-        <p id='roomsList'>
-            Java<br>
-            WebDev<br>
-            Automation<br>
-            ECA<br>
-            CTS Architects<br>
-        </p>
+        <ul id='roomsList'>
+            <li id='Automations' class='noBullet' onclick='selectRoom(this)'>Automations</li>
+            <li id='Java' class='noBullet' onclick='selectRoom(this)'>Java</li>
+            <li id='TV' class='noBullet' onclick='selectRoom(this)'>TV</li>
+            <li id='Rick and Morty' class='noBullet' onclick='selectRoom(this)'>Rick and Morty</li>
+            <li id='Misc' class='noBullet' onclick='selectRoom(this)'>Misc</li>
+        </ul>
     </div>
 </div>
 
@@ -187,6 +188,7 @@ li {
 
 socket = io();
 usernames = {};
+selectedRoom = "defaultLobby";
 
 function initiateGlobals() {
     usernameInput = document.getElementById("usernameInput");
@@ -216,6 +218,27 @@ function main() {
 	previousUsername = myUsername;
 }
 
+function selectRoom(element) {
+
+	if(selectedRoom == element.innerHTML)
+		return;
+	
+	if(selectedRoom != "defaultLobby"){
+		var last = document.getElementById(selectedRoom);
+		last.className = "noBullet";
+	}
+	
+	socket.emit('left room');
+	
+	element.className = "";
+	selectedRoom = element.innerHTML;
+
+	roomMembersUL.innerHTML = ""
+	
+	usernames = socket.emit('request join room', selectedRoom);
+	
+}
+
 function checkEnterButton() {
     var evnt = window.event;
     var key = evnt.keyCode;
@@ -236,7 +259,7 @@ function buildMessageObject() {
     myContents = fontEffectReplace(cleanInput(myContents));
     var myTime = getTime();
     myUsername = cleanInput(myUsername);
-    var messageObj = {room:myRoom , font:myFont , time:myTime ,
+    var messageObj = {room:selectedRoom , font:myFont , time:myTime ,
         color:myColor , username:myUsername , contents:myContents} ;
     console.log("sending message:");
     console.log(messageObj);
@@ -275,21 +298,23 @@ function sendMessage() {
 			chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 		});
 		
-	socket.on('request username', function(users) {
-		usernames = users;
-		
-		for(var key in usernames){
-			if(usernames.hasOwnProperty(key))
-				roomMembersUL.innerHTML = roomMembersUL.innerHTML + "<li id='" + key + "'>" + usernames[key]  + "</li>";
-		}
-		
+	socket.on('request username', function(msg) {
 		socket.emit('receive username', usernameInput.value);
 	});
 		
-	socket.on('joinedroom', function(joinObj){
-		usernames[joinObj.id] = joinObj.username;
+	socket.on('join room', function(joinObj){
+		usernames = joinObj.usernames;
+		
+		for(var key in usernames){
+			if(usernames.hasOwnProperty(key)){
+				var listItem = document.getElementById(key);
+		
+				if(listItem == null)
+					roomMembersUL.innerHTML = roomMembersUL.innerHTML + "<li id='" + key + "' class='noBullet'>" + usernames[key]  + "</li>";
+			}
+		}
+		
 		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP' style='color:#545454; text-align: center;'>" +  joinObj.username + " has joined the room.</p>";
-		roomMembersUL.innerHTML = roomMembersUL.innerHTML + "<li id='" + joinObj.id + "'>" + joinObj.username + "</li>";
 		chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 	});
 	
@@ -298,18 +323,25 @@ function sendMessage() {
 		var oldName = usernames[joinObj.id];
 		usernames[joinObj.id] = joinObj.username;
 		
-		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP' style='color:#545454; text-align: center;'>" + oldName + " has changed his/her name to " + joinObj.username + ".</p>";
+		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP' style='color:#545454; text-align: center;'>" + oldName + " has changed their name to " + joinObj.username + ".</p>";
 		var listItem = document.getElementById(joinObj.id);
 		listItem.innerHTML = joinObj.username;
 
 	});
 	
-	
 	socket.on('disconnected', function(userId){
-		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP' style='color:#545454; text-align: center;'>" + usernames[userId] + " has left the room.</p>";
-		delete usernames[userId];
-		var node = document.getElementById(userId);
-		node.parentNode.removeChild(node);
+		
+		var name = usernames[userId];
+		
+		if(name == null)
+			name = myUsername;
+		else{
+			delete usernames[userId];
+			var node = document.getElementById(userId);
+			node.parentNode.removeChild(node);
+		}
+			
+		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP' style='color:#545454; text-align: center;'>" + name+ " has left the room.</p>";
 	});
 
 function cleanInput(input) {
