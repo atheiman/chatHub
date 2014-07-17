@@ -63,7 +63,7 @@ html,body {
 #rightColumn div {
   margin-left:0px;
 }
-#roomMembersP,#roomsList {
+#roomMembersUL,#roomsList {
   margin: 6px 0px 0px 12px;
   border:0px;
   padding:0px;
@@ -108,10 +108,8 @@ html,body {
   </div>
   <div id='roomMembersDiv'>
     Currently in "Default Room"
-    <p id='roomMembersP'>
-      Austin<br>
-      Chris<br>
-    </p>
+    <ul id='roomMembersUL'>
+    </ul>
   </div>
   <div id='roomsListDiv'>
     <input type='text' id='roomSearchInput' placeholder='Search for a room...'><br>
@@ -131,23 +129,26 @@ html,body {
 <script>
 
 	socket = io();
+	usernames = {};
 
-  function initiateGlobals() {
-    usernameInput = document.getElementById("usernameInput");
-    myUsername = usernameInput.value;
-    messageTextarea = document.getElementById("messageTextarea");
-    chatBoxDiv = document.getElementById("chatBoxDiv");
-    myRoom = "default room set globally";
-    fontSelect = document.getElementById('fontSelect');
-    colorSelect = document.getElementById('colorSelect');
-    myFont = fontSelect.value;
-    myColor = fontSelect.value;
-    previousMessage = "";
-    isNewToRoom = true;
-  }
+	function initiateGlobals() {
+		usernameInput = document.getElementById("usernameInput");
+		myUsername = usernameInput.value;
+		messageTextarea = document.getElementById("messageTextarea");
+		chatBoxDiv = document.getElementById("chatBoxDiv");
+		myRoom = "default room set globally";
+		fontSelect = document.getElementById('fontSelect');
+		colorSelect = document.getElementById('colorSelect');
+		roomMembersUL = document.getElementById('roomMembersUL');
+		myFont = fontSelect.value;
+		myColor = fontSelect.value;
+		previousMessage = "";
+		previousUsername = usernameInput.value;
+		isNewToRoom = true;
+	}
   
 	function main() {
-	  initiateGlobals();
+		initiateGlobals();
 		usernameInput.value = generateRandUsername();
 	}
 
@@ -161,31 +162,37 @@ html,body {
 		}
 	}
   
-  function buildMessageObject() {
-    var myContents = messageTextarea.value;
-    previousMessage = myContents;
-    myContents = cleanInput(myContents);
-    var myTime = getTime();
-    myUsername = cleanInput(myUsername);
-    var messageObj = {room:myRoom , font:myFont , time:myTime ,
-      color:myColor , username:myUsername , contents:myContents} ;
-    console.log("sending message:");
-    console.log(messageObj);
-    return messageObj;
-  }
+	function buildMessageObject() {
+		var myContents = messageTextarea.value;
+		previousMessage = myContents;
+		myContents = cleanInput(myContents);
+		var myTime = getTime();
+		myUsername = cleanInput(myUsername);
+		var messageObj = {room:myRoom , font:myFont , time:myTime ,
+		color:myColor , username:myUsername , contents:myContents} ;
+		console.log("sending message:");
+		console.log(messageObj);
+		return messageObj;
+	}
 
-function fontColorChange() {
-  myColor = colorSelect.value;
-  messageTextarea.style.color = myColor;
-}
+	function fontColorChange() {
+	  myColor = colorSelect.value;
+	  messageTextarea.style.color = myColor;
+	}
 
-function fontFamilyChange() {
-  myFont = fontSelect.value;
-  messageTextarea.style.fontFamily = myFont;
-}
+	function fontFamilyChange() {
+	  myFont = fontSelect.value;
+	  messageTextarea.style.fontFamily = myFont;
+	}
 
 	function sendMessage() {
-		var messageObj = buildMessageObject();
+		
+		if(myUsername != previousUsername){
+			socket.emit('usernamed changed', myUsername);
+			previousUsername = myUsername;
+		}
+		
+		var messageObj = buildMessageObject();		
 		socket.emit('chat message', messageObj);
 		messageTextarea.value = "";
 	}
@@ -193,26 +200,45 @@ function fontFamilyChange() {
 	socket.on('chat message', function(messageObj) {
 	    console.log("message received:");
 	    console.log(messageObj);
-		  var messageString = "<p class='messageP' style='color:" + messageObj.color + ";font-family:" + messageObj.font + ";'><span class='messageInfoSpan'>[" + messageObj.username + " " + messageObj.time + "]</span> " + messageObj.contents + "</p>";
+		
+		var messageString = "<p class='messageP' style='color:" + messageObj.color + ";font-family:" + messageObj.font + ";'><span class='messageInfoSpan'>[" + messageObj.username + " " + messageObj.time + "]</span> " + messageObj.contents + "</p>";
 			
 			chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + messageString;
 			chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 		});
 		
-		socket.on('whoareyou', function(msg) {
-      if (isNewToRoom) {
-		    socket.emit('iam', usernameInput.value);
-      }
-      isNewToRoom = false;
-		});
+	socket.on('request username', function(users) {
+		usernames = users;
 		
-		socket.on('joinedroom', function(msg){
-		  chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + msg + "<br>";
-		  chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
-		});
+		for(var key in usernames){
+			if(usernames.hasOwnProperty(key))
+				roomMembersUL.innerHTML = roomMembersUL.innerHTML + "<li>" + usernames[key]  + "</li>";
+		}
+		
+		socket.emit('receive username', usernameInput.value);
+	});
+		
+	socket.on('joinedroom', function(joinObj){
+		usernames[joinObj.id] = joinObj.username;
+		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP' style='color:#545454; text-align: center;'>" +  joinObj.username + " has joined the room.</p>";
+		roomMembersUL.innerHTML = roomMembersUL.innerHTML + "<li id='" + joinObj.id + "'>" + joinObj.username + "</li>";
+		chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
+	});
+	
+	socket.on('changed name', function(joinObj){
+	
+		var oldName = usernames[joinObj.id];
+		usernames[joinObj.id] = joinObj.username;
+		
+		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP' style='color:#545454; text-align: center;'>" + oldName + " has changed his/her name to " + joinObj.username + ".</p>";
+		var listItem = document.getElementById(joinObj.id);
+		listItem.innerHTML = joinObj.username;
+
+	
+	});
 		
 	function cleanInput(input) {
-	  input = input.replace(/(<([^>]+)>)/ig,"");
+		input = input.replace(/(<([^>]+)>)/ig,"");
 		input = input.replace(/\n/g,"<br />");
 		input = input.replace( /\*\*(.+?)\*\*/gm, "<b>$1</b>" );
 		input = input.replace( /\_\_(.+?)\_\_/gm, "<u>$1</u>" );

@@ -6,13 +6,28 @@ app.get('/', function(req, res){
   res.sendfile('index.html');
 });
 
+var usernames = {};
+var users = {};
+var num = 1;
+
 io.on('connection', function(socket){
 	console.log('a user connected');
-// 	io.emit('connect', 'a user connected');
-  io.emit('whoareyou', "");
+	userId = 'user#' + num++;
+	users[userId] = socket;
+	socket.emit('request username', usernames);
 	
-	socket.on('iam', function(username){
-	  io.emit('joinedroom', username + " has joined the room.");
+	socket.on('receive username', function(username){
+		socket.username = username;
+		usernames[userId] = username;
+		console.log(socket.username);
+		io.emit('joinedroom', { id:userId, username:socket.username });
+	});
+	
+	socket.on('usernamed changed', function(username){
+		socket.username = username;
+		usernames[userId] = username;
+		console.log(socket.username);
+		io.emit('changed name', { id:userId, username:socket.username });
 	});
 	
 	socket.on('chat message', function(messageObj){
