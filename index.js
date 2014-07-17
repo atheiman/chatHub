@@ -23,7 +23,7 @@ io.on('connection', function(socket){
 		io.emit('joinedroom', { id:userId, username:socket.username });
 	});
 	
-	socket.on('usernamed changed', function(username){
+	socket.on('username changed', function(username){
 		socket.username = username;
 		usernames[userId] = username;
 		console.log(socket.username);

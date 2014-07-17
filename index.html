@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <!--
-  Chris Delpire and Austin Heiman ChatBucket UI HTML.
-  7/14/2014
-  v0.2
+    Chris Delpire and Austin Heiman ChatBucket UI HTML.
+    7/14/2014
+    v0.2
 -->
 <html>
 
@@ -11,184 +11,251 @@
 <link rel="stylesheet" href="./octicons/octicons.css">
 <style>
 html,body {
-  height:100%;
-  margin:0px;
-  min-width:750px;
-  overflow-y:auto;
-  min-height:300px;
-  font-size:100%;
-  font-family:arial;
-  background-color:#eee;
+    height:100%;
+    margin:0px;
+    min-width:750px;
+    overflow-y:auto;
+    min-height:300px;
+    font-size:100%;
+    font-family:arial;
+    background-color:#eee;
 }
 .column {
-  float:left;
-  margin:0px;
-  border:0px;
-  padding:0px;
-  height:100%;
+    float:left;
+    margin:0px;
+    border:0px;
+    padding:0px;
+    height:100%;
 }
 #leftColumn {
-  width:calc(100% - 250px);
+    width:calc(100% - 250px);
 }
 .column div {
-  margin:6px;
-  border:1px solid black;
-  padding:6px;
+    margin:6px;
+    border:1px solid black;
+    padding:6px;
 }
 #chatBoxDiv {
-  height:calc(100% - 114px);
-  overflow-y:scroll;
+    height:calc(100% - 114px);
+    overflow-y:scroll;
 }
 #chatBoxDiv p {
-  margin:0px;
-  border:0px;
-  padding:0px;
-  margin-bottom:5px;
+    margin:0px;
+    border:0px;
+    padding:0px;
+    margin-bottom:5px;
 }
 .messageInfoSpan {
-  color:gray;
-  width:500px;
+    color:gray;
+    width:500px;
 }
 #messageTextarea {
-  width:calc(100% - 6px);
-  margin:0px;
-  border:1px solid black;
-  resize:none;
-  font-family:arial;
+    width:calc(100% - 6px);
+    margin:0px;
+    border:1px solid black;
+    resize:none;
+    font-family:arial;
+}
+#popupBackgroundDiv{
+    display:none;
+    z-index:200;
+    height:100%;
+    width:100%;
+    position:absolute;
+    background-color:#000;
+    opacity:.5;    /*opacity:1; is no seethru*/
+}
+#popupSettingsDiv {
+    display:none;
+    padding: 20px;
+    position:absolute;
+    background-color:white;
+    z-index:300;
+    height:70%;
+    width:45%;
+    min-height:250px;
 }
 #rightColumn {
-  width:250px;
-  overflow-y:auto;
+    width:250px;
+    overflow-y:auto;
 }
 #rightColumn div {
-  margin-left:0px;
+    margin-left:0px;
 }
 #roomMembersUL,#roomsList {
-  margin: 6px 0px 0px 12px;
-  border:0px;
-  padding:0px;
+    margin: 6px 0px 0px 12px;
+    border:0px;
+    padding:0px;
 }
 #roomSearchInput {
-  width:calc(100% - 4px);
+    width:calc(100% - 4px);
+}
+
+.center {text-align:center;}
+.large {font-size:115%;}
+.bold {font-weight:bold;}
+.Absolute-Center {
+    margin: auto;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+}
+h1 , h2 , h3 , h4 {
+    padding:0px;
+    margin:0px;
+}
+li {
+    list-style-type: none;
 }
 </style>
 </head>
 
 <body id='myBody' onload="main()">
+<div id='popupBackgroundDiv'></div>
+<div id='popupSettingsDiv' class='Absolute-Center'>
+    <h2 class='center'>Settings</h2>
+    <hr>
+    <p> <!-- UI Settings -->
+        <label>UI Theme: </label>
+        <select id='themeSelect'>
+            <option>Light</option>
+            <option>Dark</option>
+        </select><br>
+        <input type="checkbox" id='incomingColorsCheck'><label> Ignore incoming message colors </label><br>
+        <input type="checkbox" id='incomingFontCheck'><label> Ignore incoming message fonts </label>
+    </p>
+    <p> <!-- Rooms Settings -->
+        <label>Default Room: </label>
+        <select id='defaultRoomSelect'>
+            <option>Default Room</option>
+            <option>Last Room</option>
+        </select>
+    </p>
+    <button id='saveSettingsButton' onclick=''>Save Settings</button>
+</div>
+
 <div id='leftColumn' class='column'>
-  <div id='chatBoxDiv'>
-    <p class='messageP'><span class='messageInfoSpan'>[Austin 8:58am] </span>This green is awesome! We need color and the buttons/options related to the message sending can go below it.</p>
-  </div>
-  <div id='sendMessageDiv'>
-    <textarea id='messageTextarea' rows='2' placeholder='Send a message...' onkeypress="checkEnterButton()" autofocus></textarea>
-    <select id='fontSelect' onchange='fontFamilyChange()'>
-      <option value='arial'>Arial</option>
-      <option value='monospace'>Monospace</option>
-    </select>
-    <select id='colorSelect' onchange='fontColorChange()'>
-      <option value='#000000'>Black</option>
-      <option value='#0000ff'>Blue</option>
-      <option value='#00ccff'>Cyan</option>
-      <option value='#ff0000'>Red</option>
-      <option value='#33cc33'>Green</option>
-      <option value='#ffffff'>White</option>
-      <option value='#ffff00'>Yellow</option>
-      <option value='#ffa71a'>Day[9] Yellow</option>
-      <option value='#512888'>EMAW</option>
-      <option value='#ff9900'>Caret</option>
-      <option value='#93BF72'>Oscar Green</option>
-    </select>
-    <button id='sendButton' onclick="sendMessage()">Send</button>
-  </div>
+    <div id='chatBoxDiv'>
+    </div>
+    <div id='sendMessageDiv'>
+        <textarea id='messageTextarea' rows='2' placeholder='Send a message...' onkeypress="checkEnterButton()" autofocus></textarea>
+        <select id='fontSelect' onchange='fontFamilyChange()'>
+            <option value='arial'>Arial</option>
+            <option value='monospace'>Monospace</option>
+        </select>
+        <select id='colorSelect' onchange='fontColorChange()'>
+            <option value='#000000'>Black</option>
+            <option value='#0000ff'>Blue</option>
+            <option value='#00ccff'>Cyan</option>
+            <option value='#ff0000'>Red</option>
+            <option value='#33cc33'>Green</option>
+            <option value='#ffffff'>White</option>
+            <option value='#ffff00'>Yellow</option>
+            <option value='#ffa71a'>Day[9] Yellow</option>
+            <option value='#512888'>EMAW</option>
+            <option value='#ff9900'>Caret</option>
+            <option value='#93BF72'>Oscar Green</option>
+        </select>
+        <button id='sendButton' onclick="sendMessage()">Send</button>
+    </div>
 </div>
 
 <div id='rightColumn' class='column'>
-  <div id='settingsDiv'>
-    <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18' onchange="myUsername = cleanInput(this.value)"><span class="octicon octicon-gear"></span>
-  </div>
-  <div id='roomMembersDiv'>
-    Currently in "Default Room"
-    <ul id='roomMembersUL'>
-    </ul>
-  </div>
-  <div id='roomsListDiv'>
-    <input type='text' id='roomSearchInput' placeholder='Search for a room...'><br>
-    Recent rooms:
-    <p id='roomsList'>
-      Java<br>
-      WebDev<br>
-      Automation<br>
-      ECA<br>
-      CTS Architects<br>
-    </p>
-  </div>
+    <div id='settingsDiv'>
+        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18' onchange="myUsername = cleanInput(this.value)"><span class="octicon octicon-gear"></span>
+    </div>
+    <div id='roomMembersDiv'>
+        Currently in "Default Room"
+	<ul id='roomMembersUL'>
+	</ul>
+    </div>
+    <div id='roomsListDiv'>
+        <input type='text' id='roomSearchInput' placeholder='Search for a room...'><br>
+        Recent rooms:
+        <p id='roomsList'>
+            Java<br>
+            WebDev<br>
+            Automation<br>
+            ECA<br>
+            CTS Architects<br>
+        </p>
+    </div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
 
-	socket = io();
-	usernames = {};
+socket = io();
+usernames = {};
 
-	function initiateGlobals() {
-		usernameInput = document.getElementById("usernameInput");
-		myUsername = usernameInput.value;
-		messageTextarea = document.getElementById("messageTextarea");
-		chatBoxDiv = document.getElementById("chatBoxDiv");
-		myRoom = "default room set globally";
-		fontSelect = document.getElementById('fontSelect');
-		colorSelect = document.getElementById('colorSelect');
-		roomMembersUL = document.getElementById('roomMembersUL');
-		myFont = fontSelect.value;
-		myColor = fontSelect.value;
-		previousMessage = "";
-		previousUsername = usernameInput.value;
-		isNewToRoom = true;
-	}
-  
-	function main() {
-		initiateGlobals();
-		usernameInput.value = generateRandUsername();
-	}
+function initiateGlobals() {
+    usernameInput = document.getElementById("usernameInput");
+    myUsername = usernameInput.value;
+    messageTextarea = document.getElementById("messageTextarea");
+    chatBoxDiv = document.getElementById("chatBoxDiv");
+    myRoom = "default room set globally";
+    fontSelect = document.getElementById('fontSelect');
+    colorSelect = document.getElementById('colorSelect');
+    myFont = fontSelect.value;
+    myColor = fontSelect.value;
+    previousMessage = "";
+    previousUsername = usernameInput.value;
+    isNewToRoom = true;
+    popupBackgroundDiv = document.getElementById('popupBackgroundDiv');
+    popupSettingsDiv = document.getElementById('popupSettingsDiv');
+    defaultRoomInput = document.getElementById('defaultRoomInput');
+    defaultRoomSelect = document.getElementById('defaultRoomSelect');
+    themeSelect = document.getElementById('themeSelect');
+    popupBackgroundDiv = document.getElementById('popupBackgroundDiv');
+    popupSettingsDiv = document.getElementById('popupSettingsDiv');
+}
 
-	function checkEnterButton() {
-		var evnt = window.event;
-		var key = evnt.keyCode;
+function main() {
+    initiateGlobals();
+    usernameInput.value = generateRandUsername();
+}
 
-		if (key == 13 && !evnt.shiftKey && document.activeElement === messageTextarea) {
-			sendMessage();
-			evnt.preventDefault();
-		}
-	}
-  
-	function buildMessageObject() {
-		var myContents = messageTextarea.value;
-		previousMessage = myContents;
-		myContents = cleanInput(myContents);
-		var myTime = getTime();
-		myUsername = cleanInput(myUsername);
-		var messageObj = {room:myRoom , font:myFont , time:myTime ,
-		color:myColor , username:myUsername , contents:myContents} ;
-		console.log("sending message:");
-		console.log(messageObj);
-		return messageObj;
-	}
+function checkEnterButton() {
+    var evnt = window.event;
+    var key = evnt.keyCode;
 
-	function fontColorChange() {
-	  myColor = colorSelect.value;
-	  messageTextarea.style.color = myColor;
-	}
+    if (key == 13 && !evnt.shiftKey && document.activeElement === messageTextarea) {
+        sendMessage();
+        evnt.preventDefault();
+    }
+}
 
-	function fontFamilyChange() {
-	  myFont = fontSelect.value;
-	  messageTextarea.style.fontFamily = myFont;
-	}
+function displayNone(element) {
+    element.style.display = 'none';
+}
 
-	function sendMessage() {
+function buildMessageObject() {
+    var myContents = messageTextarea.value;
+    previousMessage = myContents;
+    myContents = fontEffectReplace(cleanInput(myContents));
+    var myTime = getTime();
+    myUsername = cleanInput(myUsername);
+    var messageObj = {room:myRoom , font:myFont , time:myTime ,
+        color:myColor , username:myUsername , contents:myContents} ;
+    console.log("sending message:");
+    console.log(messageObj);
+    return messageObj;
+}
+
+function fontColorChange() {
+    myColor = colorSelect.value;
+    messageTextarea.style.color = myColor;
+}
+
+function fontFamilyChange() {
+    myFont = fontSelect.value;
+    messageTextarea.style.fontFamily = myFont;
+}
+
+function sendMessage() {
 		
 		if(myUsername != previousUsername){
-			socket.emit('usernamed changed', myUsername);
+			socket.emit('username changed', myUsername);
 			previousUsername = myUsername;
 		}
 		
@@ -196,7 +263,7 @@ html,body {
 		socket.emit('chat message', messageObj);
 		messageTextarea.value = "";
 	}
-	
+
 	socket.on('chat message', function(messageObj) {
 	    console.log("message received:");
 	    console.log(messageObj);
@@ -236,88 +303,68 @@ html,body {
 
 	
 	});
-		
-	function cleanInput(input) {
-		input = input.replace(/(<([^>]+)>)/ig,"");
-		input = input.replace(/\n/g,"<br />");
-		input = input.replace( /\*\*(.+?)\*\*/gm, "<b>$1</b>" );
-		input = input.replace( /\_\_(.+?)\_\_/gm, "<u>$1</u>" );
-		input = input.replace( /\*(.+?)\*/gm, "<i>$1</i>" );
-		return input;
-	}
-	
-	function getTime() {
-	
-		var date = new Date();
-		var hour = date.getHours();
-		var ampm = "am";
-		
-		if(hour > 12) {
-			hour = hour - 12;
-			ampm = "pm";
-		}
-		else if(hour == 12)
-			ampm = "pm";
-		else if(hour == 0)
-			hour = 12;
-		
-		var minutes = date.getMinutes();
+
+function cleanInput(input) {
+    input = input.replace(/(<([^>]+)>)/ig,"");
+    input = input.replace(/\n/g,"<br />");
+    return input;
+}
+
+function fontEffectReplace(input) {
+    input = input.replace( /\*\*(.+?)\*\*/gm, "<b>$1</b>" );
+    input = input.replace( /\_\_(.+?)\_\_/gm, "<u>$1</u>" );
+    input = input.replace( /\*(.+?)\*/gm, "<i>$1</i>" );
+    return input;
+}
+
+function getTime() {
+    var date = new Date();
+    var hour = date.getHours();
+    var ampm = "am";
+    
+    if(hour > 12) {
+        hour = hour - 12;
+        ampm = "pm";
+    }
+    else if(hour == 12)
+        ampm = "pm";
+    else if(hour == 0)
+        hour = 12;
+    
+    var minutes = date.getMinutes();
     if (minutes < 10 ) {
-      minutes = "0" + minutes ;
+        minutes = "0" + minutes ;
     }
-		
-		return hour + ":" + minutes + ampm;
-	}
-	
-	function generateNoun() {
-		var nounArray = [ "Cat",
-		  "Dog",
-		  "Monkey",
-		  "Cow",
-		  "Moose",
-		  "Chicken",
-		  "Platypus",
-		  "Mango",
-		  "Pirate",
-		  "Wizard",
-		  "Knight",
-		  "Box"	  ];
-		  
-		var noun = nounArray[Math.floor(Math.random() * nounArray.length)];
-		  
-		return noun;
-	}
-  
-	function generateAdj() {
-		var adjectiveArray = [ "Blue",
-		  "Red",
-		  "Metal",
-		  "Angry",
-		  "Feisty",
-		  "Sad",
-		  "Hungry",
-		  "Mellow",
-		  "Happy",
-		  "Erect",
-		  "Aroused",
-		  "Deliberate",
-		  "Frenzied" ];
-		  
-		var adj = adjectiveArray[Math.floor(Math.random() * adjectiveArray.length)];
-		  
-		return adj;
-    }
+    
+    return hour + ":" + minutes + ampm;
+}
 
-	function generateRandUsername() {
-		var adj = generateAdj();
-		var noun = generateNoun();
-                myUsername = adj + noun;
-		return myUsername;
-	}
+function generateNoun() {
+    var nounArray = [ "Cat", "Dog", "Monkey", "Cow", "Moose", "Chicken",
+        "Platypus", "Mango", "Pirate", "Wizard", "Knight", "Box" ];
+    var noun = nounArray[Math.floor(Math.random() * nounArray.length)];
+    
+    return noun;
+}
 
+function generateAdj() {
+    var adjectiveArray = [ "Blue", "Red", "Metal", "Angry", "Feisty", "Sad",
+        "Hungry", "Mellow", "Happy", "Erect", "Aroused", "Deliberate", "Frenzied" ];
+    var adj = adjectiveArray[Math.floor(Math.random() * adjectiveArray.length)];
+
+return adj;
+}
+
+function generateRandUsername() {
+    var adj = generateAdj();
+    var noun = generateNoun();
+    myUsername = adj + noun;
+    return myUsername;
+}
 
 </script>
 
 </body>
 
 </html>
+
