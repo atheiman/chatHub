@@ -12,21 +12,21 @@ var num = 1;
 
 io.on('connection', function(socket){
 	console.log('a user connected');
-	userId = 'user#' + num++;
+	var userId = 'user#' + num++;
 	users[userId] = socket;
 	socket.emit('request username', usernames);
 	
 	socket.on('receive username', function(username){
 		socket.username = username;
 		usernames[userId] = username;
-		console.log(socket.username);
+		console.log(socket.username + " logged in with the ID: " + userId);
 		io.emit('joinedroom', { id:userId, username:socket.username });
 	});
-	
+
 	socket.on('username changed', function(username){
+		console.log(socket.username + " is changing names. ID: " + userId);
 		socket.username = username;
 		usernames[userId] = username;
-		console.log(socket.username);
 		io.emit('changed name', { id:userId, username:socket.username });
 	});
 	
@@ -37,7 +37,9 @@ io.on('connection', function(socket){
 	
 	socket.on('disconnect', function(){
 		console.log('user disconnected');
-		io.emit('disconnect', 'a user disconnected');
+		delete users[userId];
+		delete usernames[userId];
+		io.emit('disconnected', userId);
 	});
 });
 

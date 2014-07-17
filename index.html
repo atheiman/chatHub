@@ -279,7 +279,7 @@ function sendMessage() {
 		
 		for(var key in usernames){
 			if(usernames.hasOwnProperty(key))
-				roomMembersUL.innerHTML = roomMembersUL.innerHTML + "<li>" + usernames[key]  + "</li>";
+				roomMembersUL.innerHTML = roomMembersUL.innerHTML + "<li id='" + key + "'>" + usernames[key]  + "</li>";
 		}
 		
 		socket.emit('receive username', usernameInput.value);
@@ -301,7 +301,13 @@ function sendMessage() {
 		var listItem = document.getElementById(joinObj.id);
 		listItem.innerHTML = joinObj.username;
 
+	});
 	
+	
+	socket.on('disconnected', function(userId){
+		delete usernames[userId];
+		var node = document.getElementById(userId);
+		node.parentNode.removeChild(node);
 	});
 
 function cleanInput(input) {
