@@ -291,6 +291,7 @@ function fontEffectReplace(input) {
   input = input.replace( /\*\*(.+?)\*\*/gm, "<b>$1</b>" );
   input = input.replace( /\_\_(.+?)\_\_/gm, "<u>$1</u>" );
   input = input.replace( /\*(.+?)\*/gm, "<i>$1</i>" );
+  return input;
 }
 
 function getTime() {
