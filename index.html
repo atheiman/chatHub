@@ -34,6 +34,10 @@ div.card {
   box-shadow: 3px 3px 6px -3px #999;
   /* h-shadow v-shadow blur spread color */
 }
+div.populationCard {
+	height:145px;
+	overflow:auto;
+}
 input , textarea {
   border:1px solid #bbb;
 }
@@ -145,6 +149,16 @@ li.selectedRoom {
 .inline {
   display:inline;
 }
+hr.fadeout {
+    margin-top:5px;
+    margin-bottom:5px;
+    border: 0;
+    height: 1px;
+    background-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0));
+    background-image: -moz-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0));
+    background-image: -ms-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0));
+    background-image: -o-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0));
+}
 
 </style>
 </head>
@@ -153,7 +167,7 @@ li.selectedRoom {
 <div id='popupBackgroundDiv' onclick='closePopups()'></div>
 <div id='popupSettingsDiv' class='Absolute-Center card'>
     <h2 class='center'>Settings</h2>
-    <hr>
+    <hr class="fadeout">
     <p> <!-- UI Settings -->
         <label>UI Theme: </label>
         <select id='themeSelect'>
@@ -174,6 +188,8 @@ li.selectedRoom {
 </div>
 <div id='leftColumn' class='column'>
     <div id='chatBoxDiv' class='card'>
+	<p class='' style='color:#545454; text-align: center;'>Welcome to chatHub, our lightweight, free chat service!</p>
+	<p class='' style='color:#545454; text-align: center;'>Just begin typing...</p><br>
     </div>
     <div id='sendMessageDiv' class='card'>
         <textarea id='messageTextarea' rows='2' placeholder='Send a message...' onkeypress="checkEnterButton(event)" autofocus></textarea>
@@ -200,17 +216,20 @@ li.selectedRoom {
 
 <div id='rightColumn' class='column'>
     <div id='settingsDiv' class='card'>
-        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18' onchange="myUsername = cleanInput(this.value)"><span class="octicon octicon-gear" onclick='displaySettings()'></span>
+        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18' onchange="myUsername = cleanInput(this.value)" onkeypress="checkEnterUsername(event)" onblur="nameOnBlur()">&nbsp;&nbsp;&nbsp;&nbsp;<span class="octicon octicon-gear" onclick='displaySettings()'></span>
     </div>
-    <div id='roomMembersDiv' class='card'>
-        Currently in "Default Room"
+    <div id='roomMembersDiv' class='card populationCard'>
+        Users in "DefaultLobby"
+	<hr class="fadeout">
 	<ul id='roomMembersUL'>
 	</ul>
     </div>
     <div id='roomsListDiv' class='card'>
-        <input type='text' id='roomSearchInput' placeholder='Search for a room...'><br>
+        <input type='text' id='roomSearchInput' placeholder='Search for a room...' onkeypress="checkEnterRoom(event)"><br>
         Recent rooms:
+		<hr class="fadeout">
         <ul id='roomsList'>
+			<li id='DefaultLobby' class='inline room selectedRoom' onclick='selectRoom(this)'>DefaultLobby</li><br>
             <li id='Automations' class='inline room unselectedRoom' onclick='selectRoom(this)'>Automations</li><br>
             <li id='Java' class='inline room unselectedRoom' onclick='selectRoom(this)'>Java</li><br>
             <li id='TV' class='inline room unselectedRoom' onclick='selectRoom(this)'>TV</li><br>
@@ -227,7 +246,7 @@ li.selectedRoom {
 
 socket = io();
 usernames = {};
-selectedRoom = "defaultLobby";
+selectedRoom = "DefaultLobby";
 isBlurred = false;
 numberOfMissedMessages = 0;
 
@@ -248,6 +267,7 @@ function initiateGlobals() {
     popupSettingsDiv = document.getElementById('popupSettingsDiv');
     defaultRoomInput = document.getElementById('defaultRoomInput');
     defaultRoomSelect = document.getElementById('defaultRoomSelect');
+	roomMembersDiv = document.getElementById('roomMembersDiv');
     themeSelect = document.getElementById('themeSelect');
     incomingColorsCheck = document.getElementById('incomingColorsCheck');
     incomingFontCheck = document.getElementById('incomingFontCheck');
@@ -304,10 +324,8 @@ function selectRoom(element) {
 	if(selectedRoom == element.innerHTML)
 		return;
 	
-	if(selectedRoom != "defaultLobby"){
-		var last = document.getElementById(selectedRoom);
-		last.className = "inline room unselectedRoom";
-	}
+	var last = document.getElementById(selectedRoom);
+	last.className = "inline room unselectedRoom";
 	
 	socket.emit('left room');
 	
@@ -343,6 +361,30 @@ function checkEnterButton(e) {
     }
 }
 
+function checkEnterUsername(e){
+
+	var key = e.keyCode ? e.keyCode : e.which;
+	
+	if(key == 13) {
+		var input = document.getElementById('usernameInput');
+		input.blur();
+	}
+}
+
+function checkEnterRoom(e){
+	
+	var key = e.keyCode ? e.keyCode : e.which;
+	
+	if(key == 13) {
+		var input = document.getElementById('roomSearchInput');
+		var roomsList = document.getElementById('roomsList');
+		input.blur();
+		roomsList.innerHTML = roomsList.innerHTML + "<li id='" + input.value + "' class='inline room unselectedRoom' onclick='selectRoom(this)'>" + input.value + "</li><br>";
+		var room = document.getElementById(input.value);
+		selectRoom(room);
+	}
+}
+
 function configureSettings() {
   // set the settings saved from mySettings obj
   }
@@ -374,12 +416,16 @@ function fontFamilyChange() {
     messageTextarea.style.fontFamily = myFont;
 }
 
-function sendMessage() {
-		
-		if(myUsername != previousUsername){
+function nameOnBlur() {
+	
+	if(myUsername != previousUsername){
 			socket.emit('username changed', myUsername);
 			previousUsername = myUsername;
 		}
+
+}
+
+function sendMessage() {
 		
 		var messageObj = buildMessageObject();
 		socket.emit('chat message', messageObj);
@@ -408,6 +454,8 @@ function sendMessage() {
 		
 	socket.on('join room', function(joinObj){
 		usernames = joinObj.usernames;
+		
+		roomMembersDiv.innerHTML = 'Users in "' + selectedRoom + '"<hr class="fadeout"><ul id="roomMembersUL"></ul>';
 		
 		for(var key in usernames){
 			if(usernames.hasOwnProperty(key)){

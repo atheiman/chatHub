@@ -24,7 +24,7 @@ io.on('connection', function(socket){
 	var userId = 'user#' + num++;
 	
 	//Set the default room.
-	var room = "defaultLobby";
+	var room = "DefaultLobby";
 	
 	//Check if the default room already exits
 	//in rooms object.
