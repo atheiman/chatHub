@@ -1,11 +1,18 @@
-var app = require('./node_modules/express')();
-var http = require('http').Server(app);
-var io = require('./node_modules/socket.io')(http);
+// var app = require('./node_modules/express')();
+var express = require('express');
+var app = express();
+// var http = require('http').Server(app);
+var http = require('http').createServer(app);
+var io = require('socket.io')(http);
+// var port = process.env.PORT || 80;
 
 app.get('/', function(req, res){
   res.sendfile('index.html');
 });
 
+// app.use('/assets', connect.static(__dirname + '/assets'));
+
+app.use(express.static(__dirname + '/assets'));
 var rooms = {};
 var users = {};
 var num = 1;
