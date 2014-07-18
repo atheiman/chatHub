@@ -7,7 +7,8 @@
 <html>
 
 <head>
-<title>Chat v2</title>
+<title>chatHub</title>
+<link rel="icon" type="image/png" href="/chatHubIcon.png" />
 <link rel="stylesheet" href="./octicons/octicons.css">
 <style>
 html,body {
@@ -17,8 +18,24 @@ html,body {
     overflow-y:auto;
     min-height:300px;
     font-size:100%;
-    font-family:arial;
+    font-family:"arial";
     background-color:#eee;
+}
+div.card {
+  background-color:#fff;
+  color:#404040;
+  padding: 3px 3px;
+  border-style: solid;
+  border-radius: 3px;
+  border-width: 1px;
+  border-color: #bbb;
+  -webkit-box-shadow: 3px 3px 6px -3px #999;
+  -moz-box-shadow: 3px 3px 6px -3px #999;
+  box-shadow: 3px 3px 6px -3px #999;
+  /* h-shadow v-shadow blur spread color */
+}
+input , textarea {
+  border:1px solid #bbb;
 }
 .column {
     float:left;
@@ -32,12 +49,12 @@ html,body {
 }
 .column div {
     margin:6px;
-    border:1px solid black;
+    /*border:1px solid black;*/
     padding:6px;
 }
 #chatBoxDiv {
     height:calc(100% - 114px);
-    overflow-y:scroll;
+    overflow-y:auto;
 }
 #chatBoxDiv p {
     margin:0px;
@@ -52,7 +69,6 @@ html,body {
 #messageTextarea {
     width:calc(100% - 6px);
     margin:0px;
-    border:1px solid black;
     resize:none;
     font-family:arial;
 }
@@ -104,8 +120,30 @@ h1 , h2 , h3 , h4 {
     padding:0px;
     margin:0px;
 }
-li.noBullet {
-    list-style-type: none;
+/*li.noBullet {*/
+/*  list-style-type: none;*/
+/*}*/
+li {
+  list-style-type:none;
+}
+li.room {
+  padding:0px 4px 1px 4px;
+  border-radius:5px;
+  transition: background-color .5s;
+}
+li.unselectedRoom {
+  cursor:pointer;
+}
+li.unselectedRoom:hover {
+  background-color:#f2f2f2;
+}
+li.selectedRoom {
+  background-color:#3399ff;
+  color:#ffffff;
+  cursor:default;
+}
+.inline {
+  display:inline;
 }
 
 </style>
@@ -113,7 +151,7 @@ li.noBullet {
 
 <body id='myBody' onload="main()">
 <div id='popupBackgroundDiv' onclick='closePopups()'></div>
-<div id='popupSettingsDiv' class='Absolute-Center'>
+<div id='popupSettingsDiv' class='Absolute-Center card'>
     <h2 class='center'>Settings</h2>
     <hr>
     <p> <!-- UI Settings -->
@@ -134,11 +172,10 @@ li.noBullet {
     </p>
     <button id='saveSettingsButton' onclick='saveSettings()'>Save Settings</button>
 </div>
-
 <div id='leftColumn' class='column'>
-    <div id='chatBoxDiv'>
+    <div id='chatBoxDiv' class='card'>
     </div>
-    <div id='sendMessageDiv'>
+    <div id='sendMessageDiv' class='card'>
         <textarea id='messageTextarea' rows='2' placeholder='Send a message...' onkeypress="checkEnterButton(event)" autofocus></textarea>
         <select id='fontSelect' onchange='fontFamilyChange()'>
             <option value='arial'>Arial</option>
@@ -162,23 +199,23 @@ li.noBullet {
 </div>
 
 <div id='rightColumn' class='column'>
-    <div id='settingsDiv'>
+    <div id='settingsDiv' class='card'>
         <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18' onchange="myUsername = cleanInput(this.value)"><span class="octicon octicon-gear" onclick='displaySettings()'></span>
     </div>
-    <div id='roomMembersDiv'>
+    <div id='roomMembersDiv' class='card'>
         Currently in "Default Room"
 	<ul id='roomMembersUL'>
 	</ul>
     </div>
-    <div id='roomsListDiv'>
+    <div id='roomsListDiv' class='card'>
         <input type='text' id='roomSearchInput' placeholder='Search for a room...'><br>
         Recent rooms:
         <ul id='roomsList'>
-            <li id='Automations' class='noBullet' onclick='selectRoom(this)'>Automations</li>
-            <li id='Java' class='noBullet' onclick='selectRoom(this)'>Java</li>
-            <li id='TV' class='noBullet' onclick='selectRoom(this)'>TV</li>
-            <li id='Rick and Morty' class='noBullet' onclick='selectRoom(this)'>Rick and Morty</li>
-            <li id='Misc' class='noBullet' onclick='selectRoom(this)'>Misc</li>
+            <li id='Automations' class='inline room unselectedRoom' onclick='selectRoom(this)'>Automations</li><br>
+            <li id='Java' class='inline room unselectedRoom' onclick='selectRoom(this)'>Java</li><br>
+            <li id='TV' class='inline room unselectedRoom' onclick='selectRoom(this)'>TV</li><br>
+            <li id='Rick and Morty' class='inline room unselectedRoom' onclick='selectRoom(this)'>Rick and Morty</li><br>
+            <li id='Misc' class='inline room unselectedRoom' onclick='selectRoom(this)'>Misc</li><br>
         </ul>
     </div>
 </div>
@@ -239,6 +276,14 @@ function main() {
 	previousUsername = myUsername;
 }
 
+// function highlightElement(element) {
+//   element.style.backgroundColor = '#f2f2f2';
+// }
+
+// function delightElement(element) {
+//   element.style.backgroundColor = 'initial';
+// }
+
 function onBlur() {
 	isBlurred = true;
 };
@@ -247,7 +292,7 @@ function onFocus() {
 	isBlurred = false;
 	numberOfMissedMessages = 0;
 	var title = document.getElementsByTagName("title");
-	title[0].innerHTML = "Chat v2";
+	title[0].innerHTML = "chatHub";
 };
 
 function displaySettings() {
@@ -261,12 +306,12 @@ function selectRoom(element) {
 	
 	if(selectedRoom != "defaultLobby"){
 		var last = document.getElementById(selectedRoom);
-		last.className = "noBullet";
+		last.className = "inline room unselectedRoom";
 	}
 	
 	socket.emit('left room');
 	
-	element.className = "";
+	element.className = "inline room selectedRoom";
 	selectedRoom = element.innerHTML;
 
 	roomMembersUL.innerHTML = ""
@@ -348,7 +393,7 @@ function sendMessage() {
 		if(isBlurred){
 			numberOfMissedMessages++;
 			var title = document.getElementsByTagName("title");
-			title[0].innerHTML = "Chat v2 (" + numberOfMissedMessages + ")";
+			title[0].innerHTML = "(" + numberOfMissedMessages + ") chatHub";
 		}
 		
 		var messageString = "<p class='messageP' style='color:" + messageObj.color + ";font-family:" + messageObj.font + ";'><span class='messageInfoSpan'>[" + messageObj.username + " " + messageObj.time + "]</span> " + messageObj.contents + "</p>";
