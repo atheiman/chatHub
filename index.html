@@ -147,9 +147,12 @@ li.selectedRoom {
   color:#ffffff;
   cursor:default;
 }
-.inline {
-  display:inline;
-}
+.inline { display:inline; }
+.right { float:right; }
+.large { font-size:115%; }
+.small { font-size:85%; }
+.smaller { font-size:70%; }
+.larger { font-size:130%; }
 hr.fadeout {
     margin-top:5px;
     margin-bottom:5px;
@@ -189,7 +192,7 @@ hr.fadeout {
 </div>
 <div id='leftColumn' class='column'>
 
-    <div id='chatBoxDiv' class='card' onclick="messageTextarea.focus();">
+    <div id='chatBoxDiv' class='card'>
 	<p class='' style='color:#545454; text-align: center;'>Welcome to chatHub, our lightweight, free chat service!</p>
 	<p class='' style='color:#545454; text-align: center;'>Just begin typing...</p><br>
     </div>
@@ -213,13 +216,13 @@ hr.fadeout {
             <option value='#ff9900'>Caret</option>
             <option value='#93BF72'>Oscar Green</option>
         </select>
-        <button id='sendButton' onclick="sendMessage()">Send</button>
+        <button id='sendButton' class="right" onclick="sendMessage()">Send</button>
     </div>
 </div>
 
 <div id='rightColumn' class='column'>
     <div id='settingsDiv' class='card'>
-        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18' onchange="myUsername = cleanInput(this.value)" onkeypress="checkEnterUsername(event)" onblur="nameOnBlur()">&nbsp;&nbsp;&nbsp;&nbsp;<span class="octicon octicon-gear" onclick='displaySettings()'></span>
+        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18' onchange="myUsername = cleanInput(this.value)" onkeypress="checkEnterUsername(event)" onblur="nameOnBlur()"><span class="octicon octicon-gear right larger" onclick='displaySettings()'></span>
     </div>
     <div id='roomMembersDiv' class='card populationCard'>
         Users in "DefaultLobby"
