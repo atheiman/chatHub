@@ -60,7 +60,7 @@ input , textarea {
     height:calc(100% - 114px);
     overflow-y:auto;
 }
-#chatBoxDiv p {
+#chatBoxDiv p.messageP {
     margin:0px;
     border:0px;
     padding:0px;
@@ -147,12 +147,20 @@ li.selectedRoom {
   color:#ffffff;
   cursor:default;
 }
+.chatBoxNotification {
+   color:#666;
+   text-align: center;
+   font-size:70%;
+   margin:0px;
+}
 .inline { display:inline; }
 .right { float:right; }
 .large { font-size:115%; }
+.larger { font-size:130%; }
+.largest { font-size:145%; }
 .small { font-size:85%; }
 .smaller { font-size:70%; }
-.larger { font-size:130%; }
+.smallest { font-size:65%; }
 hr.fadeout {
     margin-top:5px;
     margin-bottom:5px;
@@ -193,8 +201,8 @@ hr.fadeout {
 <div id='leftColumn' class='column'>
 
     <div id='chatBoxDiv' class='card'>
-	<p class='' style='color:#545454; text-align: center;'>Welcome to chatHub, our lightweight, free chat service!</p>
-	<p class='' style='color:#545454; text-align: center;'>Just begin typing...</p><br>
+	<p class='center' style='margin:0px 0px 5px 0px;'>Welcome to chatHub, our lightweight, free chat service!</p>
+	<p class='center' style='margin:0px 0px 6px 0px;'>Just begin typing...</p>
     </div>
 
     <div id='sendMessageDiv' class='card'>
@@ -222,7 +230,7 @@ hr.fadeout {
 
 <div id='rightColumn' class='column'>
     <div id='settingsDiv' class='card'>
-        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18' onchange="myUsername = cleanInput(this.value)" onkeypress="checkEnterUsername(event)" onblur="nameOnBlur()"><span class="octicon octicon-gear right larger" onclick='displaySettings()'></span>
+        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18' onchange="nameOnBlur();"><span class="octicon octicon-gear right largest" onclick='displaySettings()'></span>
     </div>
     <div id='roomMembersDiv' class='card populationCard'>
         Users in "DefaultLobby"
@@ -231,8 +239,8 @@ hr.fadeout {
 	</ul>
     </div>
     <div id='roomsListDiv' class='card'>
-        <input type='text' id='roomSearchInput' placeholder='Search for a room...' onkeypress="checkEnterRoom(event)"><br>
-        Recent rooms:
+        <input type='text' id='roomSearchInput' placeholder='Create a room...' onkeypress="checkEnterRoom(event)"><br>
+        <p style="margin:3px 0px;">Available Rooms:</p>
 		<hr class="fadeout">
         <ul id='roomsList'>
 			<li id='DefaultLobby' class='inline room selectedRoom' onclick='selectRoom(this)'>DefaultLobby</li><br>
@@ -273,10 +281,12 @@ function initiateGlobals() {
     popupSettingsDiv = document.getElementById('popupSettingsDiv');
     defaultRoomInput = document.getElementById('defaultRoomInput');
     defaultRoomSelect = document.getElementById('defaultRoomSelect');
-	roomMembersDiv = document.getElementById('roomMembersDiv');
+  	roomMembersDiv = document.getElementById('roomMembersDiv');
     themeSelect = document.getElementById('themeSelect');
     incomingColorsCheck = document.getElementById('incomingColorsCheck');
     incomingFontCheck = document.getElementById('incomingFontCheck');
+    roomSearchInput = document.getElementById('roomSearchInput');
+    roomsList = document.getElementById('roomsList');
     
     // load settings from localStorage if existing
     if (localStorage.getItem("settingsJSON") !== null) {
@@ -326,6 +336,7 @@ function selectRoom(element) {
 	last.className = "inline room unselectedRoom";
 	
 	socket.emit('left room');
+	chatBoxDiv.innerHTML += "<hr class='fadeout'>";
 	
 	element.className = "inline room selectedRoom";
 	selectedRoom = element.innerHTML;
@@ -333,7 +344,19 @@ function selectRoom(element) {
 	roomMembersUL.innerHTML = ""
 	
 	usernames = socket.emit('request join room', selectedRoom);
-	}
+}
+
+function alphanumericUnderDash(string) {
+  // leave only alphanumeric, dashes, underscores
+  string = string.replace(/[^a-zA-Z0-9-_]/g,"");
+  return string;
+}
+
+function alphanumericUnderDashSpace(string) {
+  // leave only alphanumeric, dashes, underscores
+  string = string.replace(/[^a-zA-Z0-9-_\s]/g,"");
+  return string;
+}
 	
 function closePopups() {
   popupBackgroundDiv.style.display = "none";
@@ -359,27 +382,29 @@ function checkEnterButton(e) {
     }
 }
 
-function checkEnterUsername(e){
+// function checkEnterUsername(e){
 
-	var key = e.keyCode ? e.keyCode : e.which;
+// 	var key = e.keyCode ? e.keyCode : e.which;
 	
-	if(key == 13) {
-		var input = document.getElementById('usernameInput');
-		input.blur();
-	}
-}
+// 	if(key == 13) {
+// 		usernameInput.blur();
+// 	}
+// }
 
 function checkEnterRoom(e){
 	
 	var key = e.keyCode ? e.keyCode : e.which;
 	
 	if(key == 13) {
-		var input = document.getElementById('roomSearchInput');
-		var roomsList = document.getElementById('roomsList');
-		input.blur();
-		roomsList.innerHTML = roomsList.innerHTML + "<li id='" + input.value + "' class='inline room unselectedRoom' onclick='selectRoom(this)'>" + input.value + "</li><br>";
-		var room = document.getElementById(input.value);
-		selectRoom(room);
+		// var input = document.getElementById('roomSearchInput');
+		// var roomsList = document.getElementById('roomsList');
+		var newRoom = alphanumericUnderDashSpace(roomSearchInput.value);
+		roomSearchInput.blur();
+		roomsList.innerHTML = roomsList.innerHTML + "<li id='" + newRoom + "' class='inline room unselectedRoom' onclick='selectRoom(this)'>" + newRoom + "</li><br>";
+		// var room = document.getElementById(roomSearchInput.value);
+		selectRoom(newRoom);
+		roomSearchInput.value = "";
+		messageTextarea.focus();
 	}
 }
 
@@ -396,7 +421,7 @@ function buildMessageObject() {
     previousMessage = myContents;
     myContents = fontEffectReplace(cleanInput(myContents));
     var myTime = getTime();
-    myUsername = cleanInput(myUsername);
+    myUsername = alphanumericUnderDash(myUsername);
     var messageObj = {room:selectedRoom , font:myFont , time:myTime ,
         color:myColor , username:myUsername , contents:myContents} ;
     console.log("sending message:");
@@ -415,10 +440,12 @@ function fontFamilyChange() {
 }
 
 function nameOnBlur() {
-	
-	if(myUsername != previousUsername){
+	myUsername = alphanumericUnderDash(usernameInput.value);
+	if(myUsername != previousUsername && myUsername != ""){
+	  
 			socket.emit('username changed', myUsername);
 			previousUsername = myUsername;
+			usernameInput.value = myUsername;
 		}
 
 }
@@ -469,7 +496,7 @@ function sendMessage() {
 			}
 		}
 		
-		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP' style='color:#545454; text-align: center;'>" +  joinObj.username + " has joined the room.</p>";
+		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" +  joinObj.username + " has joined the room.</p>";
 		chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 	});
 	
@@ -478,7 +505,7 @@ function sendMessage() {
 		var oldName = usernames[joinObj.id];
 		usernames[joinObj.id] = joinObj.username;
 		
-		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP' style='color:#545454; text-align: center;'>" + oldName + " has changed their name to " + joinObj.username + ".</p>";
+		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" + oldName + " has changed their name to " + joinObj.username + ".</p>";
 		var listItem = document.getElementById(joinObj.id);
 		listItem.innerHTML = joinObj.username;
 
@@ -496,7 +523,7 @@ function sendMessage() {
 			node.parentNode.removeChild(node);
 		}
 			
-		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='messageP' style='color:#545454; text-align: center;'>" + name+ " has left the room.</p>";
+		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" + name+ " has left the room.</p>";
 	});
 
 function cleanInput(input) {
