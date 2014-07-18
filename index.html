@@ -296,14 +296,6 @@ function main() {
 	previousUsername = myUsername;
 }
 
-// function highlightElement(element) {
-//   element.style.backgroundColor = '#f2f2f2';
-// }
-
-// function delightElement(element) {
-//   element.style.backgroundColor = 'initial';
-// }
-
 function onBlur() {
 	isBlurred = true;
 };
@@ -426,11 +418,16 @@ function nameOnBlur() {
 }
 
 function sendMessage() {
+  if (messageTextarea.value === "" ) {
+    messageTextarea.focus();
+    return false;
+  }
 		
-		var messageObj = buildMessageObject();
-		socket.emit('chat message', messageObj);
-		messageTextarea.value = "";
-	}
+	var messageObj = buildMessageObject();
+	socket.emit('chat message', messageObj);
+	messageTextarea.value = "";
+	messageTextarea.focus();
+}
 
 	socket.on('chat message', function(messageObj) {
 	    console.log("message received:");
