@@ -74,6 +74,7 @@ html,body {
     height:70%;
     width:45%;
     min-height:250px;
+    overflow-y:auto;
 }
 #rightColumn {
     width:250px;
@@ -111,7 +112,7 @@ li.noBullet {
 </head>
 
 <body id='myBody' onload="main()">
-<div id='popupBackgroundDiv'></div>
+<div id='popupBackgroundDiv' onclick='closePopups()'></div>
 <div id='popupSettingsDiv' class='Absolute-Center'>
     <h2 class='center'>Settings</h2>
     <hr>
@@ -131,7 +132,7 @@ li.noBullet {
             <option>Last Room</option>
         </select>
     </p>
-    <button id='saveSettingsButton' onclick=''>Save Settings</button>
+    <button id='saveSettingsButton' onclick='saveSettings()'>Save Settings</button>
 </div>
 
 <div id='leftColumn' class='column'>
@@ -162,7 +163,7 @@ li.noBullet {
 
 <div id='rightColumn' class='column'>
     <div id='settingsDiv'>
-        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18' onchange="myUsername = cleanInput(this.value)"><span class="octicon octicon-gear"></span>
+        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18' onchange="myUsername = cleanInput(this.value)"><span class="octicon octicon-gear" onclick='displaySettings()'></span>
     </div>
     <div id='roomMembersDiv'>
         Currently in "Default Room"
@@ -184,6 +185,7 @@ li.noBullet {
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="/functions.js"></script>
 <script>
 
 socket = io();
@@ -210,6 +212,21 @@ function initiateGlobals() {
     defaultRoomInput = document.getElementById('defaultRoomInput');
     defaultRoomSelect = document.getElementById('defaultRoomSelect');
     themeSelect = document.getElementById('themeSelect');
+    incomingColorsCheck = document.getElementById('incomingColorsCheck');
+    incomingFontCheck = document.getElementById('incomingFontCheck');
+    
+    // load settings from localStorage if existing
+    if (localStorage.getItem("settingsJSON") !== null) {
+      mySettings = JSON.parse(localStorage.settingsJSON);
+      console.log('loading localStorage settings into mySettings...');
+    } else {
+      mySettings = {};
+      console.log('no localStorage settings found, intializing mySettings');
+    }
+    configureSettings()
+    console.log("settings loaded:");
+    console.log(mySettings);
+
     popupBackgroundDiv = document.getElementById('popupBackgroundDiv');
     popupSettingsDiv = document.getElementById('popupSettingsDiv');
 	window.onfocus = onFocus;
@@ -233,6 +250,10 @@ function onFocus() {
 	title[0].innerHTML = "Chat v2";
 };
 
+function displaySettings() {
+  popupBackgroundDiv.style.display = "block";
+  popupSettingsDiv.style.display = "block";
+  }
 function selectRoom(element) {
 
 	if(selectedRoom == element.innerHTML)
@@ -251,9 +272,22 @@ function selectRoom(element) {
 	roomMembersUL.innerHTML = ""
 	
 	usernames = socket.emit('request join room', selectedRoom);
+	}
 	
+function closePopups() {
+  popupBackgroundDiv.style.display = "none";
+  popupSettingsDiv.style.display = "none";
 }
 
+function saveSettings() {
+  // save all settings to mySettings object
+  //mySettings.theme
+  //mySettings.ignoreColors = incomingColorsCheck
+  //mySettings.ignoreFont = incomingFontCheck.checked
+  localStorage.settingsJSON = JSON.stringify(mySettings);
+  closePopups();
+  
+  }
 function checkEnterButton(e) {
 
     var key = e.keyCode ? e.keyCode : e.which;
@@ -264,6 +298,10 @@ function checkEnterButton(e) {
     }
 }
 
+function configureSettings() {
+  // set the settings saved from mySettings obj
+  }
+  
 function displayNone(element) {
     element.style.display = 'none';
 }
@@ -298,7 +336,7 @@ function sendMessage() {
 			previousUsername = myUsername;
 		}
 		
-		var messageObj = buildMessageObject();		
+		var messageObj = buildMessageObject();
 		socket.emit('chat message', messageObj);
 		messageTextarea.value = "";
 	}
@@ -399,7 +437,7 @@ function getTime() {
     
     return hour + ":" + minutes + ampm;
 }
-
+/*
 function generateNoun() {
     var nounArray = [ "Cat", "Dog", "Monkey", "Cow", "Moose", "Chicken",
         "Platypus", "Mango", "Pirate", "Wizard", "Knight", "Box" ];
@@ -415,7 +453,7 @@ function generateAdj() {
 
 return adj;
 }
-
+*/
 function generateRandUsername() {
     var adj = generateAdj();
     var noun = generateNoun();
