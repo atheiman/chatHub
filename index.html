@@ -656,6 +656,8 @@ function sendMessage() {
 		
 	socket.on('join room', function(joinObj){
 	
+		console.log("Joining Room: " + selectedRoom);
+	
 		usernames = joinObj.usernames;
 		
 		roomMembersDiv.innerHTML = 'Users in "' + selectedRoom + '"<hr class="fadeout"><ul id="roomMembersUL"></ul>';
@@ -674,7 +676,7 @@ function sendMessage() {
 	});
 	
 	socket.on('send bucketArray', function(buckets) {
-	
+		console.log("Bucket Array Received: " + buckets);
 		bucket.contentsArray = buckets;
 		bucket.dance();
 		
@@ -682,11 +684,9 @@ function sendMessage() {
 	
 	
 	socket.on('new bucketItem', function(bucketItem) {
-	
-		console.log("Fuck logs this is a bad way of debugging");
+		console.log("Bucket Item Received: " + bucketItem);
 		bucket.contentsArray.push(bucketItem);
 		bucket.dance();
-		
 	});
 	
 	
@@ -696,6 +696,8 @@ function sendMessage() {
 	});
 	
 	socket.on('changed name', function(joinObj){
+	
+		console.log("Changing Name: " + joinObj.username);
 	
 		var oldName = usernames[joinObj.id];
 		usernames[joinObj.id] = joinObj.username;
