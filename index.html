@@ -122,6 +122,7 @@ input , textarea {
     width:calc(100% - 4px);
 }
 
+.pointer { cursor:pointer; }
 .center {text-align:center;}
 .large {font-size:115%;}
 .bold {font-weight:bold;}
@@ -181,13 +182,23 @@ hr.fadeout {
     background-image: -ms-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0));
     background-image: -o-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0));
 }
+#bucketDiv {
+  position:absolute;
+  height:20px;
+  width:20px;
+  z-index:150px;
+  top:13px;
+  right:263px;
+  transition: width .5s;
+  transition: height .5s;
+}
 
 </style>
 </head>
 
 <body id='myBody' onload="main()">
 <div id='youtubeBucket' class="card">
-<iframe id='youtubeiFrame' style="visibility:hidden;" onload="this.style.visibility = 'visible';" width="640" height="360" src="" frameborder="0" allowfullscreen></iframe>
+<iframe id='youtubeiFrame' style="visibility:hidden;" onload="this.style.visibility = 'visible';" width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
 </div>
 <div id='popupBackgroundDiv' onclick='closePopups()'></div>
 <div id='popupSettingsDiv' class='Absolute-Center card'>
@@ -211,12 +222,13 @@ hr.fadeout {
     </p>
     <button id='saveSettingsButton' onclick='saveSettings()'>Save Settings</button>
 </div>
-<div id='leftColumn' class='column'>
 
-    <div id='chatBoxDiv' class='card'>
-	<div>
-	<span class="octicon octicon-paintcan right larger" onclick='sendBucket()' style='border:1px solid black; padding: 3px'></span>
-	</div>
+<div id='bucketDiv' style='background-color:lightgray; opacity:.5;'>
+	<span class="octicon octicon-paintcan right larger pointer" onclick='sendBucket()'></span>
+</div>
+
+<div id='leftColumn' class='column'>
+  <div id='chatBoxDiv' class='card'>
 	<p class='center' style='margin:0px 0px 5px 0px;'>Welcome to chatHub, our lightweight, free chat service!</p>
 	<p class='center' style='margin:0px 0px 6px 0px;'>Just begin typing...</p>
     </div>
@@ -246,7 +258,7 @@ hr.fadeout {
 
 <div id='rightColumn' class='column'>
     <div id='settingsDiv' class='card'>
-        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='12' maxlength='18' onchange="nameOnBlur();"><span class="octicon octicon-gear right largest" onclick='displaySettings()'></span>
+        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='14' maxlength='18' onchange="nameOnBlur();"><span class="octicon octicon-gear right larger pointer" onclick='displaySettings()' style="padding-top:1px;"></span>
     </div>
     <div id='roomMembersDiv' class='card populationCard'>
         Users in "DefaultLobby"
@@ -305,6 +317,7 @@ function initiateGlobals() {
     roomsList = document.getElementById('roomsList');
 	youtubeBucket = document.getElementById('youtubeBucket');
 	youtubeiFrame = document.getElementById('youtubeiFrame');
+	bucketDiv = document.getElementById('bucketDiv');
     
     // load settings from localStorage if existing
     if (localStorage.getItem("settingsJSON") !== null) {
@@ -408,6 +421,26 @@ function checkEnterButton(e) {
     }
 }
 
+function expandBucketDiv(width,height) {
+  /*
+  position:absolute;
+  height:20px;
+  width:20px;
+  z-index:150px;
+  top:13px;
+  right:263px;
+  
+  default: 320width x 180height
+  */
+  bucketDiv.style.width = width;
+  bucketDiv.style.height = height;
+}
+
+function collapseBucketDiv() {
+  bucketDiv.style.width = "initial";
+  bucketDiv.style.height = "initial";
+}
+
 // function checkEnterUsername(e){
 
 // 	var key = e.keyCode ? e.keyCode : e.which;
@@ -427,8 +460,8 @@ function checkEnterRoom(e){
 		var newRoom = alphanumericUnderDashSpace(roomSearchInput.value);
 		roomSearchInput.blur();
 		roomsList.innerHTML = roomsList.innerHTML + "<li id='" + newRoom + "' class='inline room unselectedRoom' onclick='selectRoom(this)'>" + newRoom + "</li><br>";
-		// var room = document.getElementById(roomSearchInput.value);
-		selectRoom(newRoom);
+		var room = document.getElementById(newRoom);
+		selectRoom(room);
 		roomSearchInput.value = "";
 		messageTextarea.focus();
 	}
@@ -535,7 +568,7 @@ function sendMessage() {
 	socket.on('play video', function(link) {
 		youtubeiFrame.src=link;
 		youtubeBucket.style.display = "block";
-	});  
+	});
 	
 	socket.on('changed name', function(joinObj){
 	
