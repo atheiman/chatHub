@@ -96,16 +96,16 @@ input , textarea {
     min-height:250px;
     overflow-y:auto;
 }
-#youtubeBucket {
-	display:none;
-	position:absolute;
-	top:25px;
-	z-index:200;
-	height:360px;
-	width:640px;
-	left:calc(100% - 916px);
-	border:1px solid black;
-}
+/*#youtubeBucket {*/
+/*	display:none;*/
+/*	position:absolute;*/
+/*	top:25px;*/
+/*	z-index:200;*/
+/*	height:360px;*/
+/*	width:640px;*/
+/*	left:calc(100% - 916px);*/
+/*	border:1px solid black;*/
+/*}*/
 #rightColumn {
     width:250px;
     overflow-y:auto;
@@ -172,6 +172,7 @@ li.selectedRoom {
 .small { font-size:85%; }
 .smaller { font-size:70%; }
 .smallest { font-size:65%; }
+.red { font-color:#600; }
 hr.fadeout {
     margin-top:5px;
     margin-bottom:5px;
@@ -182,15 +183,56 @@ hr.fadeout {
     background-image: -ms-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0));
     background-image: -o-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0));
 }
-#bucketDiv {
+#bucketSpan {
   position:absolute;
-  height:20px;
-  width:20px;
-  z-index:150px;
   top:13px;
   right:263px;
-  transition: width 1s, height 1s;
 }
+#bucketXSpan {
+  position:absolute;
+  top:13px;
+  right:263px;
+  color:red;
+  display:none;
+}
+#youtubeiFrame {
+  position:absolute;
+  top:13px;
+  right:285px;
+  height:0px;
+  width:0px;
+  transition: width 1s, height 1s;
+  display:none;
+  /*background-color:orange;*/
+}
+
+
+@-webkit-keyframes spaceboots {
+	0% { -webkit-transform: translate(2px, 1px) rotate(0deg); }
+	10% { -webkit-transform: translate(-1px, -2px) rotate(-1deg); }
+	20% { -webkit-transform: translate(-3px, 0px) rotate(1deg); }
+	30% { -webkit-transform: translate(0px, 2px) rotate(0deg); }
+	40% { -webkit-transform: translate(1px, -1px) rotate(1deg); }
+	50% { -webkit-transform: translate(-1px, 2px) rotate(-1deg); }
+	60% { -webkit-transform: translate(-3px, 1px) rotate(0deg); }
+	70% { -webkit-transform: translate(2px, 1px) rotate(-1deg); }
+	80% { -webkit-transform: translate(-1px, -1px) rotate(1deg); }
+	90% { -webkit-transform: translate(2px, 2px) rotate(0deg); }
+	100% { -webkit-transform: translate(1px, -2px) rotate(-1deg); }
+}
+.shake:hover,
+.shake:focus {
+	-webkit-animation-name: spaceboots;
+	-webkit-animation-duration: 0.8s;
+	-webkit-transform-origin:50% 50%;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+}
+.shake {
+	display:inline-block
+}
+
+
 
 </style>
 </head>
@@ -224,10 +266,11 @@ hr.fadeout {
     <button id='saveSettingsButton' onclick='saveSettings()'>Save Settings</button>
 </div>
 
-<div id='bucketDiv' style='background-color:lightgray;'>
-  <iframe id='youtubeiFrame' style="visibility:hidden;" onload="this.style.visibility = 'visible';" width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
-	<span class="octicon octicon-paintcan right larger pointer" onclick='sendBucket()'></span>
-</div>
+<!--<div id='bucketDiv' style='background-color:lightgray;'>-->
+  <iframe id='youtubeiFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
+	<span id="bucketSpan" class="octicon octicon-paintcan right larger pointer" onclick='sendBucket()'></span>
+	<span id="bucketXSpan" class="octicon octicon-x right larger pointer" onclick="collapseBucketDiv()"></span>
+<!--</div>-->
 
 <div id='leftColumn' class='column'>
   <div id='chatBoxDiv' class='card'>
@@ -317,10 +360,12 @@ function initiateGlobals() {
     incomingFontCheck = document.getElementById('incomingFontCheck');
     roomSearchInput = document.getElementById('roomSearchInput');
     roomsList = document.getElementById('roomsList');
-	youtubeBucket = document.getElementById('youtubeBucket');
+// 	youtubeBucket = document.getElementById('youtubeBucket');
 	youtubeiFrame = document.getElementById('youtubeiFrame');
-	bucketDiv = document.getElementById('bucketDiv');
+// 	bucketDiv = document.getElementById('bucketDiv');
 	bucket = {};
+	bucketSpan = document.getElementById('bucketSpan');
+	bucketXSpan = document.getElementById('bucketXSpan');
     
     // load settings from localStorage if existing
     if (localStorage.getItem("settingsJSON") !== null) {
@@ -424,25 +469,21 @@ function checkEnterButton(e) {
     }
 }
 
-function expandBucketDiv(width,height) {
-  /*
-  position:absolute;
-  height:20px;
-  width:20px;
-  z-index:150px;
-  top:13px;
-  right:263px;
-  
-  default: 320width x 180height
-  */
-  bucketDiv.style.width = width;
-  bucketDiv.style.height = height;
-  
+function expandBucket(width,height) {
+  youtubeiFrame.style.display = "inline";
+  setTimeout(function(){youtubeiFrame.style.width = width;},1000)
+  setTimeout(function(){youtubeiFrame.style.height = height;},1000)
+  bucketSpan.style.display = "none";
+  bucketXSpan.style.display = "inline";
+  bucket.expanded = true;
 }
 
 function collapseBucketDiv() {
-  bucketDiv.style.width = "20px";
-  bucketDiv.style.height = "20px";
+  youtubeiFrame.style.width = "0px";
+  youtubeiFrame.style.height = "0px";
+  bucketXSpan.style.display = "none";
+  bucketSpan.style.display = "inline";
+  bucket.expanded = false;
 }
 
 // function checkEnterUsername(e){
@@ -515,7 +556,6 @@ function nameOnBlur() {
 
 function closeBucket(){
 	youtubeiFrame.src="";
-// 	youtubeBucket.style.display = "none";
 	collapseBucketDiv();
 }
 
@@ -571,9 +611,10 @@ function sendMessage() {
 	});
 	
 	socket.on('play video', function(link) {
-	  expandBucketDiv("320px","180px");
+	  expandBucket("320px","180px");
 		youtubeiFrame.src=link;
-		youtubeBucket.style.display = "block";
+		// display youtubeiFrame after div has expanded
+		setTimeout(function(){youtubeiFrame.style.display = "inline";}, 1000);
 	});
 	
 	socket.on('changed name', function(joinObj){
