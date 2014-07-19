@@ -78,7 +78,7 @@ input , textarea {
 }
 #popupBackgroundDiv{
     display:none;
-    z-index:200;
+    z-index:500;
     height:100%;
     width:100%;
     position:absolute;
@@ -90,22 +90,12 @@ input , textarea {
     padding: 20px;
     position:absolute;
     background-color:white;
-    z-index:300;
+    z-index:600;
     height:70%;
     width:45%;
     min-height:250px;
     overflow-y:auto;
 }
-/*#youtubeBucket {*/
-/*	display:none;*/
-/*	position:absolute;*/
-/*	top:25px;*/
-/*	z-index:200;*/
-/*	height:360px;*/
-/*	width:640px;*/
-/*	left:calc(100% - 916px);*/
-/*	border:1px solid black;*/
-/*}*/
 #rightColumn {
     width:250px;
     overflow-y:auto;
@@ -206,7 +196,6 @@ hr.fadeout {
   width:0px;
   transition: width 1s, height 1s;
   display:block;
-  background-color:orange;
 }
 @-webkit-keyframes dance {
   0% {
@@ -258,17 +247,19 @@ hr.fadeout {
     animation-direction: alternate;
     animation-play-state: running;
 }
-
-
+#bucketInput {
+  position:absolute;
+  top:12px;
+  right:285px;
+  width:0px;
+  transition: width 1.5s;
+  z-index:200px;
+}
 
 </style>
 </head>
 
 <body id='myBody' onload="main()">
-
-<!--<div id='youtubeBucket' class="card">-->
-
-<!--</div>-->
 
 <div id='popupBackgroundDiv' onclick='closePopups()'></div>
 <div id='popupSettingsDiv' class='Absolute-Center card'>
@@ -293,11 +284,10 @@ hr.fadeout {
     <button id='saveSettingsButton' onclick='saveSettings()'>Save Settings</button>
 </div>
 
-<!--<div id='bucketDiv' style='background-color:lightgray;'>-->
-	<iframe id='youtubeiFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
-	<span id="bucketSpan" class="octicon octicon-paintcan right larger pointer block gray" onclick='bucket.open()'></span>
-	<span id="bucketXSpan" class="octicon octicon-x right larger pointer" onclick="bucket.close()"></span>
-<!--</div>-->
+<iframe id='youtubeiFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
+<span id="bucketSpan" class="octicon octicon-paintcan right larger pointer block gray" onclick='bucket.open()' onmouseover="bucket.showInput();"></span>
+<span id="bucketXSpan" class="octicon octicon-x right larger pointer" onclick="bucket.close()"></span>
+<input id="bucketInput" type="text" onmouseout="bucket.collapseInput()">
 
 <div id='leftColumn' class='column'>
   <div id='chatBoxDiv' class='card'>
@@ -370,14 +360,23 @@ bucket = {
 	calm:function() { bucketSpan.className = "octicon octicon-paintcan right larger pointer block gray"; this.isDancing=false; },
 	isDancing:false,
 	isExpanded:false,
-	open: function() { 
-		if(!this.isDancing) 
+	showInput: function() {
+	  // show input box
+	  bucketInput.style.width = "200px";
+	},
+	collapseInput: function() {
+	  // hide input box
+	  bucketInput.style.width = "0px";
+		setTimeout(function(){bucketInput.blur();},1500);
+	},
+	open: function() {
+		if(!this.isDancing)
 			return;
 		
 		var item = this.contentsArray.shift();
 			
 		bucketSpan.style.display = "none";
-		bucketXSpan.style.display = "inline";	
+		bucketXSpan.style.display = "inline";
 			
 		if(item.type == "youtube"){
 			youtubeiFrame.src = item.src;
@@ -392,7 +391,7 @@ bucket = {
 			
 		bucket.isExpanded = true;
 	},
-	close: function() { 
+	close: function() {
 		youtubeiFrame.style.width = "0px";
 		youtubeiFrame.style.height = "0px";
 		bucketXSpan.style.display = "none";
@@ -428,12 +427,11 @@ function initiateGlobals() {
     incomingFontCheck = document.getElementById('incomingFontCheck');
     roomSearchInput = document.getElementById('roomSearchInput');
     roomsList = document.getElementById('roomsList');
-// 	youtubeBucket = document.getElementById('youtubeBucket');
-	youtubeiFrame = document.getElementById('youtubeiFrame');
-// 	bucketDiv = document.getElementById('bucketDiv');
-	bucketSpan = document.getElementById('bucketSpan');
-	bucketXSpan = document.getElementById('bucketXSpan');
-    
+  	youtubeiFrame = document.getElementById('youtubeiFrame');
+  	bucketSpan = document.getElementById('bucketSpan');
+  	bucketXSpan = document.getElementById('bucketXSpan');
+    bucketInput = document.getElementById('bucketInput');
+
     // load settings from localStorage if existing
     if (localStorage.getItem("settingsJSON") !== null) {
       mySettings = JSON.parse(localStorage.settingsJSON);
