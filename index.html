@@ -189,17 +189,18 @@ hr.fadeout {
   z-index:150px;
   top:13px;
   right:263px;
-  transition: width .5s;
-  transition: height .5s;
+  transition: width 1s, height 1s;
 }
 
 </style>
 </head>
 
 <body id='myBody' onload="main()">
-<div id='youtubeBucket' class="card">
-<iframe id='youtubeiFrame' style="visibility:hidden;" onload="this.style.visibility = 'visible';" width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
-</div>
+
+<!--<div id='youtubeBucket' class="card">-->
+
+<!--</div>-->
+
 <div id='popupBackgroundDiv' onclick='closePopups()'></div>
 <div id='popupSettingsDiv' class='Absolute-Center card'>
     <h2 class='center'>Settings</h2>
@@ -223,7 +224,8 @@ hr.fadeout {
     <button id='saveSettingsButton' onclick='saveSettings()'>Save Settings</button>
 </div>
 
-<div id='bucketDiv' style='background-color:lightgray; opacity:.5;'>
+<div id='bucketDiv' style='background-color:lightgray;'>
+  <iframe id='youtubeiFrame' style="visibility:hidden;" onload="this.style.visibility = 'visible';" width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
 	<span class="octicon octicon-paintcan right larger pointer" onclick='sendBucket()'></span>
 </div>
 
@@ -258,7 +260,7 @@ hr.fadeout {
 
 <div id='rightColumn' class='column'>
     <div id='settingsDiv' class='card'>
-        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='14' maxlength='18' onchange="nameOnBlur();"><span class="octicon octicon-gear right larger pointer" onclick='displaySettings()' style="padding-top:1px;"></span>
+        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='13' maxlength='18' onchange="nameOnBlur();"><span class="octicon octicon-gear right larger pointer" onclick='displaySettings()' style="padding-top:1px;"></span>
     </div>
     <div id='roomMembersDiv' class='card populationCard'>
         Users in "DefaultLobby"
@@ -318,6 +320,7 @@ function initiateGlobals() {
 	youtubeBucket = document.getElementById('youtubeBucket');
 	youtubeiFrame = document.getElementById('youtubeiFrame');
 	bucketDiv = document.getElementById('bucketDiv');
+	bucket = {};
     
     // load settings from localStorage if existing
     if (localStorage.getItem("settingsJSON") !== null) {
@@ -345,7 +348,7 @@ function main() {
 }
 
 function sendBucket(){
-	socket.emit('send bucket', { type:"youtube", src:"//www.youtube.com/embed/TX8IjeWdxKs?autoplay=1" } );
+	socket.emit('send bucket', { type:"youtube", src:"//www.youtube.com/embed/TX8IjeWdxKs" } );
 }
 
 function onBlur() {
@@ -434,11 +437,12 @@ function expandBucketDiv(width,height) {
   */
   bucketDiv.style.width = width;
   bucketDiv.style.height = height;
+  
 }
 
 function collapseBucketDiv() {
-  bucketDiv.style.width = "initial";
-  bucketDiv.style.height = "initial";
+  bucketDiv.style.width = "20px";
+  bucketDiv.style.height = "20px";
 }
 
 // function checkEnterUsername(e){
@@ -511,14 +515,15 @@ function nameOnBlur() {
 
 function closeBucket(){
 	youtubeiFrame.src="";
-	youtubeBucket.style.display = "none";
+// 	youtubeBucket.style.display = "none";
+	collapseBucketDiv();
 }
 
 function sendMessage() {
   if (messageTextarea.value === "" ) {
     messageTextarea.focus();
     return false;
-  }
+}
 		
 	var messageObj = buildMessageObject();
 	socket.emit('chat message', messageObj);
@@ -566,6 +571,7 @@ function sendMessage() {
 	});
 	
 	socket.on('play video', function(link) {
+	  expandBucketDiv("320px","180px");
 		youtubeiFrame.src=link;
 		youtubeBucket.style.display = "block";
 	});
