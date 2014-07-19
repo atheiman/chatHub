@@ -161,7 +161,7 @@ li.selectedRoom {
 .chatBoxNotification {
    color:#666;
    text-align: center;
-   font-size:70%;
+   font-size:75%;
    margin:0px;
 }
 .inline { display:inline; }
@@ -173,6 +173,9 @@ li.selectedRoom {
 .smaller { font-size:70%; }
 .smallest { font-size:65%; }
 .red { font-color:#600; }
+.block { display:block; }
+.gray { color:#888; }
+.black { color:#000; }
 hr.fadeout {
     margin-top:5px;
     margin-bottom:5px;
@@ -205,31 +208,55 @@ hr.fadeout {
   display:none;
   /*background-color:orange;*/
 }
-
-
-@-webkit-keyframes spaceboots {
-	0% { -webkit-transform: translate(2px, 1px) rotate(0deg); }
-	10% { -webkit-transform: translate(-1px, -2px) rotate(-1deg); }
-	20% { -webkit-transform: translate(-3px, 0px) rotate(1deg); }
-	30% { -webkit-transform: translate(0px, 2px) rotate(0deg); }
-	40% { -webkit-transform: translate(1px, -1px) rotate(1deg); }
-	50% { -webkit-transform: translate(-1px, 2px) rotate(-1deg); }
-	60% { -webkit-transform: translate(-3px, 1px) rotate(0deg); }
-	70% { -webkit-transform: translate(2px, 1px) rotate(-1deg); }
-	80% { -webkit-transform: translate(-1px, -1px) rotate(1deg); }
-	90% { -webkit-transform: translate(2px, 2px) rotate(0deg); }
-	100% { -webkit-transform: translate(1px, -2px) rotate(-1deg); }
+@-webkit-keyframes dance {
+  0% {
+    transform:rotate(0deg);
+    -ms-transform:rotate(0deg);
+    -webkit-transform:rotate(0deg);
+  }
+  20% {
+    transform:rotate(0deg);
+    -ms-transform:rotate(0deg);
+    -webkit-transform:rotate(0deg);
+  }
+  30% {
+    transform:rotate(30deg);
+    -ms-transform:rotate(30deg);
+    -webkit-transform:rotate(30deg);
+  }
+  70% {
+    transform:rotate(-30deg);
+    -ms-transform:rotate(-30deg);
+    -webkit-transform:rotate(-30deg);
+  }
+  80% {
+    transform:rotate(0deg);
+    -ms-transform:rotate(0deg);
+    -webkit-transform:rotate(0deg);
+  }
+  100% {
+    transform:rotate(0deg);
+    -ms-transform:rotate(0deg);
+    -webkit-transform:rotate(0deg);
+  }
 }
-.shake:hover,
-.shake:focus {
-	-webkit-animation-name: spaceboots;
-	-webkit-animation-duration: 0.8s;
-	-webkit-transform-origin:50% 50%;
-	-webkit-animation-iteration-count: infinite;
-	-webkit-animation-timing-function: linear;
-}
-.shake {
-	display:inline-block
+.dance {
+    /* Chrome, Safari, Opera */
+    -webkit-animation-name: dance;
+    -webkit-animation-duration: 1.5s;
+    -webkit-animation-timing-function: linear;
+    -webkit-animation-delay: 0s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-direction: alternate;
+    -webkit-animation-play-state: running;
+    /* Standard syntax */
+    animation-name: dance;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-delay: 0s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-play-state: running;
 }
 
 
@@ -268,14 +295,14 @@ hr.fadeout {
 
 <!--<div id='bucketDiv' style='background-color:lightgray;'>-->
   <iframe id='youtubeiFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
-	<span id="bucketSpan" class="octicon octicon-paintcan right larger pointer" onclick='sendBucket()'></span>
+	<span id="bucketSpan" class="octicon octicon-paintcan right larger pointer block gray" onclick='sendBucket()'></span>
 	<span id="bucketXSpan" class="octicon octicon-x right larger pointer" onclick="collapseBucketDiv()"></span>
 <!--</div>-->
 
 <div id='leftColumn' class='column'>
   <div id='chatBoxDiv' class='card'>
-	<p class='center' style='margin:0px 0px 5px 0px;'>Welcome to chatHub, our lightweight, free chat service!</p>
-	<p class='center' style='margin:0px 0px 6px 0px;'>Just begin typing...</p>
+	<p style='margin:0px 0px 5px 0px;'>Welcome to chatHub, our lightweight, free chat service!</p>
+	<p style='margin:0px 0px 6px 0px;'>Just begin typing...</p>
     </div>
 
     <div id='sendMessageDiv' class='card'>
@@ -470,12 +497,17 @@ function checkEnterButton(e) {
 }
 
 function expandBucket(width,height) {
-  youtubeiFrame.style.display = "inline";
-  setTimeout(function(){youtubeiFrame.style.width = width;},100)
-  setTimeout(function(){youtubeiFrame.style.height = height;},100)
+  expandYoutubeiFrame(width,height);
   bucketSpan.style.display = "none";
   bucketXSpan.style.display = "inline";
   bucket.expanded = true;
+  bucketNotification("off");
+}
+
+function expandYoutubeiFrame(width,height) {
+  youtubeiFrame.style.display = "inline";
+  setTimeout(function(){youtubeiFrame.style.width = width;},100);
+  setTimeout(function(){youtubeiFrame.style.height = height;},100);
 }
 
 function collapseBucketDiv() {
@@ -484,6 +516,15 @@ function collapseBucketDiv() {
   bucketXSpan.style.display = "none";
   bucketSpan.style.display = "inline";
   bucket.expanded = false;
+}
+
+function bucketNotification(onOrOff) {
+  if (onOrOff == "on") {
+    bucketSpan.class = "octicon octicon-paintcan right larger pointer block black dance";
+  }
+  if (onOrOff == "off") {
+    bucketSpan.class = "octicon octicon-paintcan right larger pointer block gray";
+  }
 }
 
 // function checkEnterUsername(e){
