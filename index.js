@@ -83,8 +83,10 @@ io.on('connection', function(socket){
 		
 		//Check if the default room already exits
 		//in rooms object.
-		if(!rooms.hasOwnProperty(room))
-			rooms[room] = {}
+		if(!rooms.hasOwnProperty(room)){
+			rooms[room] = {};
+			roomBuckets[room] = [];
+		}
 
 		var usernames = rooms[room];
 		
@@ -96,23 +98,42 @@ io.on('connection', function(socket){
 		
 		io.to(room).emit('join room', { id:userId, username:socket.username, usernames:rooms[room] });
 		
-		if(roomBuckets[room] != null){
+		console.log("Rooms: " + roomBuckets);
+		console.log("Buckets in room: " + roomBuckets[room].length);
+		
+		if(roomBuckets[room].length > 0){
 			console.log("Sending buckets");
 			socket.emit('send bucketArray', roomBuckets[room]);
 		}
 			
 	});
 	
-	socket.on('send bucket', function(bucket){
-		console.log(bucket);
-		roomBuckets[room].push(bucket);
+	socket.on('send bucket', function(link){
+		console.log("Bucket link received: " + link);
 		console.log(roomBuckets[room]);
 		
-		io.to(room).emit('new bucketItem', bucket);
-		
-		if(roomBuckets[room].type == "youtube")
-			io.to(room).emit('play video', roomBuckets[room].src);
+		if(link.indexOf("youtube.com/watch") > -1){
+			console.log("Youtube video received.");
+			SendYoutubeVideo(link);
+		}
 	});
+	
+	function SendYoutubeVideo(link){
+		var youtubeParts = link.split("?v=");
+		
+		if(youtubeParts < 1){
+			console.log("Problem parsing Youtube video.");
+			return;
+		}
+	
+		var embedLink = "//www.youtube.com/embed/" + youtubeParts[1]
+		
+		var bucketItem = { type:"youtube", src:embedLink }
+		
+		roomBuckets[room].push(bucketItem);
+		
+		io.to(room).emit('new bucketItem', bucketItem );
+	}
 	
 	socket.on('disconnect', function(){
 		console.log('user disconnected');

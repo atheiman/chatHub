@@ -248,12 +248,34 @@ hr.fadeout {
     animation-play-state: running;
 }
 #bucketInput {
-  position:absolute;
+  //position:absolute;
   top:12px;
   right:285px;
   width:0px;
+  float:right;
   transition: width 1.5s;
   z-index:200px;
+  border-width:0px
+}
+#bucketInputDiv {
+  position:absolute;
+  top:10px;
+  right:285px;
+  width:400px;
+}
+#bucketInputXSpan {
+  color:red;
+  padding:2px;
+  display:inline;
+  opacity:0.1;
+  transition: opacity 1.5s;
+}
+#bucketInputSendSpan {
+  color:green;
+  padding:2px;
+  display:inline;
+  opacity:0.1;
+  transition: opacity 1.5s;
 }
 
 </style>
@@ -285,9 +307,13 @@ hr.fadeout {
 </div>
 
 <iframe id='youtubeiFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
-<span id="bucketSpan" class="octicon octicon-paintcan right larger pointer block gray" onclick='bucket.open()' onmouseover="bucket.showInput();"></span>
+<span id="bucketSpan" class="octicon octicon-paintcan right larger pointer block gray" onclick='bucket.open()' ></span>
 <span id="bucketXSpan" class="octicon octicon-x right larger pointer" onclick="bucket.close()"></span>
-<input id="bucketInput" type="text" onmouseout="bucket.collapseInput()">
+<div id="bucketInputDiv">
+	<span id="bucketInputSendSpan" class="octicon octicon-mail-reply right larger pointer" onclick="bucket.send(bucketInput.value)" onmouseover="bucket.showInput();"></span>
+	<input id="bucketInput" type="text">
+	<span id="bucketInputXSpan" class="octicon octicon-x right larger pointer" onclick="bucket.collapseInput()" onmouseover="bucket.showInput();"></span>
+</div>
 
 <div id='leftColumn' class='column'>
   <div id='chatBoxDiv' class='card'>
@@ -352,6 +378,7 @@ socket = io();
 usernames = {};
 selectedRoom = "DefaultLobby";
 isBlurred = false;
+isShowingBucketInput = false;
 numberOfMissedMessages = 0;
 bucketArray = [];
 bucket = {
@@ -360,18 +387,57 @@ bucket = {
 	calm:function() { bucketSpan.className = "octicon octicon-paintcan right larger pointer block gray"; this.isDancing=false; },
 	isDancing:false,
 	isExpanded:false,
+	send: function(link){
+	
+		if(isShowingBucketInput){
+			bucket.collapseInput();
+			isShowingBucketInput = false;
+		}
+		socket.emit('send bucket', link );
+	},
 	showInput: function() {
 	  // show input box
+	  
+	  if(isShowingBucketInput || this.isExpanded)
+		return;
+		
+	  isShowingBucketInput = true;
+	  
 	  bucketInput.style.width = "200px";
+	  bucketInput.style.borderWidth="1px";
+	  //bucketInputSendSpan.style.display="inline";
+	  bucketInputSendSpan.style.opacity=1;
+	  //setTimeout(function(){bucketInputXSpan.style.display="inline"}, 1400);
+	  bucketInputXSpan.style.opacity=1;
+	  
+	  
 	},
 	collapseInput: function() {
 	  // hide input box
+	  
+	  if(!isShowingBucketInput)
+		return;
+		
+	  isShowingBucketInput = false;
+	  
 	  bucketInput.style.width = "0px";
-		setTimeout(function(){bucketInput.blur();},1500);
+	  bucketInputXSpan.style.opacity=0.1;
+	  setTimeout(function(){bucketInput.blur();},1500);
+	  setTimeout(function(){bucketInput.style.borderWidth="0px";}, 1550);
+	  bucketInputSendSpan.style.opacity=0.1;
+	  //setTimeout(function(){bucketInputSendSpan.style.display="none";}, 1600);
+	  //bucketInputXSpan.style.display="none";
 	},
 	open: function() {
 		if(!this.isDancing)
 			return;
+			
+		bucketInputSendSpan.style.display="none";
+		bucketInputXSpan.style.display="none";
+		bucketInput.style.display="none";
+		this.collapseInput();
+		isShowingBucketInput = false;
+		bucket.isExpanded = true;
 		
 		var item = this.contentsArray.shift();
 			
@@ -387,16 +453,19 @@ bucket = {
 		
 		else if (item.type == "image"){
 			return; //ADD FUNCTIONALITY
-		}
-			
-		bucket.isExpanded = true;
+		}	
 	},
 	close: function() {
 		youtubeiFrame.style.width = "0px";
 		youtubeiFrame.style.height = "0px";
 		bucketXSpan.style.display = "none";
 		bucketSpan.style.display = "inline";
-		bucket.expanded = false;
+		bucket.isExpanded = false;
+		
+		bucketInputSendSpan.style.display="inline";
+		bucketInputXSpan.style.display="inline";
+		bucketInput.style.display="inline";
+		
 		if(this.contentsArray.length == 0)
 			this.calm();
 		else
@@ -431,6 +500,9 @@ function initiateGlobals() {
   	bucketSpan = document.getElementById('bucketSpan');
   	bucketXSpan = document.getElementById('bucketXSpan');
     bucketInput = document.getElementById('bucketInput');
+	bucketInputDiv = document.getElementById('bucketInputDiv');
+	bucketInputSendSpan = document.getElementById('bucketInputSendSpan');
+	bucketInputXSpan = document.getElementById('bucketInputXSpan');
 
     // load settings from localStorage if existing
     if (localStorage.getItem("settingsJSON") !== null) {
@@ -453,15 +525,7 @@ function initiateGlobals() {
 function main() {
     initiateGlobals();
     usernameInput.value = generateRandUsername();
-	previousUsername = myUsername;
-	
-	//TO DO REMOVE!!!!!!
-	sendBucket();
-	
-}
-
-function sendBucket(){
-	socket.emit('send bucket', { type:"youtube", src:"//www.youtube.com/embed/TX8IjeWdxKs" } );
+	previousUsername = myUsername;	
 }
 
 function onBlur() {
@@ -487,6 +551,8 @@ function selectRoom(element) {
 		
 	//closeBucket();
 	bucketArray = [];
+	bucket.close();
+	bucket.calm();
 	
 	var last = document.getElementById(selectedRoom);
 	last.className = "inline room unselectedRoom";
