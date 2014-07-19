@@ -96,6 +96,16 @@ input , textarea {
     min-height:250px;
     overflow-y:auto;
 }
+#youtubeBucket {
+	display:none;
+	position:absolute;
+	top:25px;
+	z-index:200;
+	height:360px;
+	width:640px;
+	left:calc(100% - 916px);
+	border:1px solid black;
+}
 #rightColumn {
     width:250px;
     overflow-y:auto;
@@ -176,6 +186,9 @@ hr.fadeout {
 </head>
 
 <body id='myBody' onload="main()">
+<div id='youtubeBucket' class="card">
+<iframe id='youtubeiFrame' style="visibility:hidden;" onload="this.style.visibility = 'visible';" width="640" height="360" src="" frameborder="0" allowfullscreen></iframe>
+</div>
 <div id='popupBackgroundDiv' onclick='closePopups()'></div>
 <div id='popupSettingsDiv' class='Absolute-Center card'>
     <h2 class='center'>Settings</h2>
@@ -201,6 +214,9 @@ hr.fadeout {
 <div id='leftColumn' class='column'>
 
     <div id='chatBoxDiv' class='card'>
+	<div>
+	<span class="octicon octicon-paintcan right larger" onclick='sendBucket()' style='border:1px solid black; padding: 3px'></span>
+	</div>
 	<p class='center' style='margin:0px 0px 5px 0px;'>Welcome to chatHub, our lightweight, free chat service!</p>
 	<p class='center' style='margin:0px 0px 6px 0px;'>Just begin typing...</p>
     </div>
@@ -287,6 +303,8 @@ function initiateGlobals() {
     incomingFontCheck = document.getElementById('incomingFontCheck');
     roomSearchInput = document.getElementById('roomSearchInput');
     roomsList = document.getElementById('roomsList');
+	youtubeBucket = document.getElementById('youtubeBucket');
+	youtubeiFrame = document.getElementById('youtubeiFrame');
     
     // load settings from localStorage if existing
     if (localStorage.getItem("settingsJSON") !== null) {
@@ -310,6 +328,11 @@ function main() {
     initiateGlobals();
     usernameInput.value = generateRandUsername();
 	previousUsername = myUsername;
+	
+}
+
+function sendBucket(){
+	socket.emit('send bucket', { type:"youtube", src:"//www.youtube.com/embed/TX8IjeWdxKs?autoplay=1" } );
 }
 
 function onBlur() {
@@ -327,10 +350,13 @@ function displaySettings() {
   popupBackgroundDiv.style.display = "block";
   popupSettingsDiv.style.display = "block";
   }
+  
 function selectRoom(element) {
 
 	if(selectedRoom == element.innerHTML)
 		return;
+		
+	closeBucket();
 	
 	var last = document.getElementById(selectedRoom);
 	last.className = "inline room unselectedRoom";
@@ -450,6 +476,11 @@ function nameOnBlur() {
 
 }
 
+function closeBucket(){
+	youtubeiFrame.src="";
+	youtubeBucket.style.display = "none";
+}
+
 function sendMessage() {
   if (messageTextarea.value === "" ) {
     messageTextarea.focus();
@@ -483,6 +514,7 @@ function sendMessage() {
 	});
 		
 	socket.on('join room', function(joinObj){
+	
 		usernames = joinObj.usernames;
 		
 		roomMembersDiv.innerHTML = 'Users in "' + selectedRoom + '"<hr class="fadeout"><ul id="roomMembersUL"></ul>';
@@ -499,6 +531,11 @@ function sendMessage() {
 		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" +  joinObj.username + " has joined the room.</p>";
 		chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 	});
+	
+	socket.on('play video', function(link) {
+		youtubeiFrame.src=link;
+		youtubeBucket.style.display = "block";
+	});  
 	
 	socket.on('changed name', function(joinObj){
 	
@@ -560,23 +597,7 @@ function getTime() {
     
     return hour + ":" + minutes + ampm;
 }
-/*
-function generateNoun() {
-    var nounArray = [ "Cat", "Dog", "Monkey", "Cow", "Moose", "Chicken",
-        "Platypus", "Mango", "Pirate", "Wizard", "Knight", "Box" ];
-    var noun = nounArray[Math.floor(Math.random() * nounArray.length)];
-    
-    return noun;
-}
 
-function generateAdj() {
-    var adjectiveArray = [ "Blue", "Red", "Metal", "Angry", "Feisty", "Sad",
-        "Hungry", "Mellow", "Happy", "Erect", "Aroused", "Deliberate", "Frenzied" ];
-    var adj = adjectiveArray[Math.floor(Math.random() * adjectiveArray.length)];
-
-return adj;
-}
-*/
 function generateRandUsername() {
     var adj = generateAdj();
     var noun = generateNoun();

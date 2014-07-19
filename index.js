@@ -14,6 +14,7 @@ app.get('/', function(req, res){
 
 app.use(express.static(__dirname + '/assets'));
 var rooms = {};
+var roomBuckets = {};
 var users = {};
 var num = 1;
 
@@ -28,8 +29,10 @@ io.on('connection', function(socket){
 	
 	//Check if the default room already exits
 	//in rooms object.
-	if(!rooms.hasOwnProperty(room))
+	if(!rooms.hasOwnProperty(room)){
 		rooms[room] = {};
+		roomBuckets[room] = {};
+	}
 		
 	socket.join(room);
 		
@@ -91,8 +94,20 @@ io.on('connection', function(socket){
 		usernames[userId] = socket.username;
 		rooms[room] = usernames;
 		
-		io.to(room).emit('join room', { id:userId, username:socket.username, usernames:rooms[room] });
+		if(roomBuckets[room] == null)
+			return;
+			
+		if(roomBuckets[room].type == "youtube")
+			socket.emit('play video', roomBuckets[room].src);
 		
+		io.to(room).emit('join room', { id:userId, username:socket.username, usernames:rooms[room] });
+	});
+	
+	socket.on('send bucket', function(bucket){
+		roomBuckets[room] = bucket;
+		
+		if(roomBuckets[room].type == "youtube")
+			io.to(room).emit('play video', roomBuckets[room].src);
 	});
 	
 	socket.on('disconnect', function(){
