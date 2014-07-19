@@ -205,8 +205,8 @@ hr.fadeout {
   height:0px;
   width:0px;
   transition: width 1s, height 1s;
-  display:none;
-  /*background-color:orange;*/
+  display:block;
+  background-color:orange;
 }
 @-webkit-keyframes dance {
   0% {
@@ -294,9 +294,9 @@ hr.fadeout {
 </div>
 
 <!--<div id='bucketDiv' style='background-color:lightgray;'>-->
-  <iframe id='youtubeiFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
-	<span id="bucketSpan" class="octicon octicon-paintcan right larger pointer block gray" onclick='sendBucket()'></span>
-	<span id="bucketXSpan" class="octicon octicon-x right larger pointer" onclick="collapseBucketDiv()"></span>
+	<iframe id='youtubeiFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
+	<span id="bucketSpan" class="octicon octicon-paintcan right larger pointer block gray" onclick='bucket.open()'></span>
+	<span id="bucketXSpan" class="octicon octicon-x right larger pointer" onclick="bucket.close()"></span>
 <!--</div>-->
 
 <div id='leftColumn' class='column'>
@@ -363,6 +363,47 @@ usernames = {};
 selectedRoom = "DefaultLobby";
 isBlurred = false;
 numberOfMissedMessages = 0;
+bucketArray = [];
+bucket = {
+	contentsArray:[],
+	dance:function() { bucketSpan.className = "octicon octicon-paintcan right larger pointer block black dance"; this.isDancing=true; },
+	calm:function() { bucketSpan.className = "octicon octicon-paintcan right larger pointer block gray"; this.isDancing=false; },
+	isDancing:false,
+	isExpanded:false,
+	open: function() { 
+		if(!this.isDancing) 
+			return;
+		
+		var item = this.contentsArray.shift();
+			
+		bucketSpan.style.display = "none";
+		bucketXSpan.style.display = "inline";	
+			
+		if(item.type == "youtube"){
+			youtubeiFrame.src = item.src;
+			youtubeiFrame.style.display = "block";
+			setTimeout(function(){youtubeiFrame.style.width = "320px";},100);
+			setTimeout(function(){youtubeiFrame.style.height = "180px";},100);
+		}
+		
+		else if (item.type == "image"){
+			return; //ADD FUNCTIONALITY
+		}
+			
+		bucket.isExpanded = true;
+	},
+	close: function() { 
+		youtubeiFrame.style.width = "0px";
+		youtubeiFrame.style.height = "0px";
+		bucketXSpan.style.display = "none";
+		bucketSpan.style.display = "inline";
+		bucket.expanded = false;
+		if(this.contentsArray.length == 0)
+			this.calm();
+		else
+			this.dance();
+	}
+};
 
 function initiateGlobals() {
     usernameInput = document.getElementById("usernameInput");
@@ -390,7 +431,6 @@ function initiateGlobals() {
 // 	youtubeBucket = document.getElementById('youtubeBucket');
 	youtubeiFrame = document.getElementById('youtubeiFrame');
 // 	bucketDiv = document.getElementById('bucketDiv');
-	bucket = {};
 	bucketSpan = document.getElementById('bucketSpan');
 	bucketXSpan = document.getElementById('bucketXSpan');
     
@@ -416,6 +456,9 @@ function main() {
     initiateGlobals();
     usernameInput.value = generateRandUsername();
 	previousUsername = myUsername;
+	
+	//TO DO REMOVE!!!!!!
+	sendBucket();
 	
 }
 
@@ -444,7 +487,8 @@ function selectRoom(element) {
 	if(selectedRoom == element.innerHTML)
 		return;
 		
-	closeBucket();
+	//closeBucket();
+	bucketArray = [];
 	
 	var last = document.getElementById(selectedRoom);
 	last.className = "inline room unselectedRoom";
@@ -496,34 +540,12 @@ function checkEnterButton(e) {
     }
 }
 
-function expandBucket(width,height) {
-  expandYoutubeiFrame(width,height);
-  bucketSpan.style.display = "none";
-  bucketXSpan.style.display = "inline";
-  bucket.expanded = true;
-  bucketNotification("off");
-}
-
-function expandYoutubeiFrame(width,height) {
-  youtubeiFrame.style.display = "inline";
-  setTimeout(function(){youtubeiFrame.style.width = width;},100);
-  setTimeout(function(){youtubeiFrame.style.height = height;},100);
-}
-
-function collapseBucketDiv() {
-  youtubeiFrame.style.width = "0px";
-  youtubeiFrame.style.height = "0px";
-  bucketXSpan.style.display = "none";
-  bucketSpan.style.display = "inline";
-  bucket.expanded = false;
-}
-
 function bucketNotification(onOrOff) {
   if (onOrOff == "on") {
-    bucketSpan.class = "octicon octicon-paintcan right larger pointer block black dance";
+    bucketSpan.className = "octicon octicon-paintcan right larger pointer block black dance";
   }
   if (onOrOff == "off") {
-    bucketSpan.class = "octicon octicon-paintcan right larger pointer block gray";
+    bucketSpan.className = "octicon octicon-paintcan right larger pointer block gray";
   }
 }
 
@@ -595,10 +617,10 @@ function nameOnBlur() {
 
 }
 
-function closeBucket(){
-	youtubeiFrame.src="";
-	collapseBucketDiv();
-}
+//function closeBucket(){
+	//youtubeiFrame.src="";
+	//collapseBucketDiv();
+//}
 
 function sendMessage() {
   if (messageTextarea.value === "" ) {
@@ -650,6 +672,23 @@ function sendMessage() {
 		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" +  joinObj.username + " has joined the room.</p>";
 		chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 	});
+	
+	socket.on('send bucketArray', function(buckets) {
+	
+		bucket.contentsArray = buckets;
+		bucket.dance();
+		
+	});
+	
+	
+	socket.on('new bucketItem', function(bucketItem) {
+	
+		console.log("Fuck logs this is a bad way of debugging");
+		bucket.contentsArray.push(bucketItem);
+		bucket.dance();
+		
+	});
+	
 	
 	socket.on('play video', function(link) {
 	  expandBucket("320px","180px");
