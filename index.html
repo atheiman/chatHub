@@ -471,8 +471,8 @@ function checkEnterButton(e) {
 
 function expandBucket(width,height) {
   youtubeiFrame.style.display = "inline";
-  setTimeout(function(){youtubeiFrame.style.width = width;},1000)
-  setTimeout(function(){youtubeiFrame.style.height = height;},1000)
+  setTimeout(function(){youtubeiFrame.style.width = width;},100)
+  setTimeout(function(){youtubeiFrame.style.height = height;},100)
   bucketSpan.style.display = "none";
   bucketXSpan.style.display = "inline";
   bucket.expanded = true;
@@ -613,8 +613,6 @@ function sendMessage() {
 	socket.on('play video', function(link) {
 	  expandBucket("320px","180px");
 		youtubeiFrame.src=link;
-		// display youtubeiFrame after div has expanded
-		setTimeout(function(){youtubeiFrame.style.display = "inline";}, 1000);
 	});
 	
 	socket.on('changed name', function(joinObj){
