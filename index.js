@@ -31,7 +31,7 @@ io.on('connection', function(socket){
 	//in rooms object.
 	if(!rooms.hasOwnProperty(room)){
 		rooms[room] = {};
-		roomBuckets[room] = {};
+		roomBuckets[room] = [];
 	}
 		
 	socket.join(room);
@@ -94,17 +94,21 @@ io.on('connection', function(socket){
 		usernames[userId] = socket.username;
 		rooms[room] = usernames;
 		
-		if(roomBuckets[room] == null)
-			return;
-			
-		if(roomBuckets[room].type == "youtube")
-			socket.emit('play video', roomBuckets[room].src);
-		
 		io.to(room).emit('join room', { id:userId, username:socket.username, usernames:rooms[room] });
+		
+		if(roomBuckets[room] != null){
+			console.log("Sending buckets");
+			socket.emit('send bucketArray', roomBuckets[room]);
+		}
+			
 	});
 	
 	socket.on('send bucket', function(bucket){
-		roomBuckets[room] = bucket;
+		console.log(bucket);
+		roomBuckets[room].push(bucket);
+		console.log(roomBuckets[room]);
+		
+		io.to(room).emit('new bucketItem', bucket);
 		
 		if(roomBuckets[room].type == "youtube")
 			io.to(room).emit('play video', roomBuckets[room].src);
