@@ -116,19 +116,45 @@ io.on('connection', function(socket){
 			console.log("Youtube video received.");
 			SendYoutubeVideo(link);
 		}
+		else if(link.indexOf("imgur.com") > -1){
+			console.log("Imgur recieved.");
+			SendImgur(link);
+		}
+		
 	});
+	
+	function SendImgur(link){
+		var imgurParts = link.split("/");
+		
+		if(imgurParts < 1){
+			console.log("Problem parsing Imgur link.");
+			return;
+		}
+		
+		console.log(imgurParts);
+		
+		var embeddedLink = "http://i.imgur.com/" + imgurParts[imgurParts.length-1] + ".gif";
+		
+		var bucketItem = { type:"imgur", src:embeddedLink }
+		
+		roomBuckets[room].push(bucketItem);
+		
+		io.to(room).emit('new bucketItem', bucketItem );
+		
+	
+	}
 	
 	function SendYoutubeVideo(link){
 		var youtubeParts = link.split("?v=");
 		
 		if(youtubeParts < 1){
-			console.log("Problem parsing Youtube video.");
+			console.log("Problem parsing Youtube link.");
 			return;
 		}
 	
-		var embedLink = "//www.youtube.com/embed/" + youtubeParts[1]
+		var embeddedLink = "//www.youtube.com/embed/" + youtubeParts[1]
 		
-		var bucketItem = { type:"youtube", src:embedLink }
+		var bucketItem = { type:"youtube", src:embeddedLink }
 		
 		roomBuckets[room].push(bucketItem);
 		
