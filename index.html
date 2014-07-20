@@ -34,7 +34,11 @@ div.card {
   box-shadow: 3px 3px 6px -3px #999;
   /* h-shadow v-shadow blur spread color */
 }
-div.populationCard {
+div.terminalCard {
+	background-color:#111;
+	color:#eee;
+}
+#roomMembersDiv {
 	height:145px;
 	overflow:auto;
 }
@@ -297,13 +301,14 @@ hr.fadeout {
   opacity:0.1;
   transition: opacity 1.5s;
 }
+<Merge Conflict>
 
 </style>
 </head>
 
 <body id='myBody' onload="main()">
 
-<div id='popupBackgroundDiv' onclick='closePopups()'></div>
+<div id='popupBackgroundDiv' onclick='closePopups(); configureSettings();'></div>
 <div id='popupSettingsDiv' class='Absolute-Center card'>
     <h2 class='center'>Settings</h2>
     <hr class="fadeout">
@@ -313,6 +318,7 @@ hr.fadeout {
             <option>Light</option>
             <option>Dark</option>
         </select><br>
+        <input type="checkbox" id='persistentUsernameCheck'><label for='persistentUsernameCheck'>Persistent Username</label><br>
         <input type="checkbox" id='incomingColorsCheck'><label for='incomingColorsCheck'> Ignore incoming message colors </label><br>
         <input type="checkbox" id='incomingFontCheck'><label for='incomingFontCheck'> Ignore incoming message fonts </label><br>
         <label for="videoResSelect">Default video resolution: </label>
@@ -379,7 +385,7 @@ hr.fadeout {
     <div id='settingsDiv' class='card'>
         <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='13' maxlength='18' onchange="nameOnBlur();"><span class="octicon octicon-gear right larger pointer" onclick='displaySettings()' style="padding-top:1px;"></span>
     </div>
-    <div id='roomMembersDiv' class='card populationCard'>
+    <div id='roomMembersDiv' class='card'>
         Users in "DefaultLobby"
 	<hr class="fadeout">
 	<ul id='roomMembersUL'>
@@ -571,56 +577,65 @@ bucket = {
 function initiateGlobals() {
     usernameInput = document.getElementById("usernameInput");
     myUsername = usernameInput.value;
-    messageTextarea = document.getElementById("messageTextarea");
-    chatBoxDiv = document.getElementById("chatBoxDiv");
-    myRoom = "default room set globally";
-    fontSelect = document.getElementById('fontSelect');
-    colorSelect = document.getElementById('colorSelect');
-    myFont = fontSelect.value;
-    myColor = fontSelect.value;
-    previousMessage = "";
-    previousUsername = usernameInput.value;
-    isNewToRoom = true;
-    popupBackgroundDiv = document.getElementById('popupBackgroundDiv');
-    popupSettingsDiv = document.getElementById('popupSettingsDiv');
-    defaultRoomInput = document.getElementById('defaultRoomInput');
-    defaultRoomSelect = document.getElementById('defaultRoomSelect');
-  	roomMembersDiv = document.getElementById('roomMembersDiv');
-    themeSelect = document.getElementById('themeSelect');
-    incomingColorsCheck = document.getElementById('incomingColorsCheck');
-    incomingFontCheck = document.getElementById('incomingFontCheck');
-    roomSearchInput = document.getElementById('roomSearchInput');
-    roomsList = document.getElementById('roomsList');
+	messageTextarea = document.getElementById("messageTextarea");
+	chatBoxDiv = document.getElementById("chatBoxDiv");
+	myRoom = "default room set globally";
+	fontSelect = document.getElementById('fontSelect');
+	colorSelect = document.getElementById('colorSelect');
+	myFont = fontSelect.value;
+	myColor = fontSelect.value;
+	previousMessage = "";
+	previousUsername = usernameInput.value;
+	isNewToRoom = true;
+	popupBackgroundDiv = document.getElementById('popupBackgroundDiv');
+	popupSettingsDiv = document.getElementById('popupSettingsDiv');
+	defaultRoomInput = document.getElementById('defaultRoomInput');
+	defaultRoomSelect = document.getElementById('defaultRoomSelect');
+	roomMembersDiv = document.getElementById('roomMembersDiv');
+	themeSelect = document.getElementById('themeSelect');
+	incomingColorsCheck = document.getElementById('incomingColorsCheck');
+	incomingFontCheck = document.getElementById('incomingFontCheck');
+	roomSearchInput = document.getElementById('roomSearchInput');
+	roomsList = document.getElementById('roomsList');
   	iFrame = document.getElementById('iFrame');
-  	bucketSpan = document.getElementById('bucketSpan');
-  	bucketXSpan = document.getElementById('bucketXSpan');
+	bucketSpan = document.getElementById('bucketSpan');
+	bucketXSpan = document.getElementById('bucketXSpan');
 	bucketNextSpan = document.getElementById('bucketNextSpan');
-    bucketInput = document.getElementById('bucketInput');
+	bucketInput = document.getElementById('bucketInput');
 	bucketInputDiv = document.getElementById('bucketInputDiv');
 	bucketInputSendSpan = document.getElementById('bucketInputSendSpan');
 	bucketInputXSpan = document.getElementById('bucketInputXSpan');
-
-    // load settings from localStorage if existing
-    if (localStorage.getItem("settingsJSON") !== null) {
-      settingsObj = JSON.parse(localStorage.settingsJSON);
-      console.log('loading localStorage settings into settingsObj...');
-    } else {
-      settingsObj = {};
-      console.log('no localStorage settings found, intializing settingsObj');
-    }
-    configureSettings()
-    console.log("settings loaded:");
-    console.log(settingsObj);
-
-    popupBackgroundDiv = document.getElementById('popupBackgroundDiv');
-    popupSettingsDiv = document.getElementById('popupSettingsDiv');
-  	window.onfocus = onFocus;
-  	window.onblur = onBlur;
+	persistentUsernameCheck = document.getElementById('persistentUsernameCheck');
+	popupBackgroundDiv = document.getElementById('popupBackgroundDiv');
+	popupSettingsDiv = document.getElementById('popupSettingsDiv');
+	cardElements = document.getElementsByClassName('card');
+	window.onfocus = onFocus;
+	window.onblur = onBlur;
 }
 
 function main() {
-    initiateGlobals();
-    usernameInput.value = generateRandUsername();
+	initiateGlobals();
+  // load settings from localStorage if existing
+  if (localStorage.getItem("settingsJSON") !== null) {
+    settingsObj = JSON.parse(localStorage.settingsJSON);
+    console.log('loading localStorage settings into settingsObj...');
+    configureSettings();
+  } else {
+
+    console.log('no localStorage settings found, intializing settingsObj');
+    settingsObj = {};
+  }
+
+  console.log("settings loaded:");
+  console.log(settingsObj);
+	// check for username from last time
+	if (!settingsObj.username || settingsObj.persistentUsername === false) {
+		usernameInput.value = generateRandUsername();
+	} else {
+		usernameInput.value = settingsObj.username;
+	}
+	myUsername = usernameInput.value;
+	settingsObj.username = myUsername;
 	previousUsername = myUsername;
 }
 
@@ -688,9 +703,11 @@ function saveSettings() {
   settingsObj.ignoreFont = incomingFontCheck.checked;
   settingsObj.videoResSelect = videoResSelect.value;
   settingsObj.username = alphanumericUnderDash(usernameInput.value);
+  settingsObj.persistentUsername = persistentUsernameCheck.checked;
   // settingsObj.lastRoom = selectedRoom;
   settingsObj.font = fontSelect.value;
   settingsObj.color = colorSelect.value;
+  settingsObj.defaultRoom = defaultRoomSelect.value;
   localStorage.settingsJSON = JSON.stringify(settingsObj);
   console.log('saving settings to localStorage and JSON string: ' + localStorage.settingsJSON);
 }
@@ -698,10 +715,12 @@ function saveSettings() {
 function configureSettings() {
   // set the settings saved from settingsObj obj
   themeSelect.value = settingsObj.theme;
-  settingsObj.ignoreColors = incomingColorsCheck.checked = settingsObj.ignoreColors;
+  incomingColorsCheck.checked = settingsObj.ignoreColors;
   incomingFontCheck.checked = settingsObj.ignoreFont;
   videoResSelect.value = settingsObj.videoResSelect;
   usernameInput.value = settingsObj.username;
+  persistentUsernameCheck.checked = settingsObj.persistentUsername;
+  defaultRoomSelect.value = settingsObj.defaultRoom;
   // selectedRoom = settingsObj.lastRoom;
   // if (selectedRoom != "DefaultLobby") {
   //   roomsArray.push(selectedRoom);
@@ -787,7 +806,8 @@ function nameOnBlur() {
 			previousUsername = myUsername;
 			usernameInput.value = myUsername;
 		}
-
+	saveSettings();
+	messageTextarea.focus();
 }
 
 function sendMessage() {
@@ -943,6 +963,11 @@ function generateRandUsername() {
     var noun = generateNoun();
     myUsername = adj + noun;
     return myUsername;
+}
+
+function setCardsTerminal() {
+	console.log("We're going terminal...");
+	
 }
 
 </script>
