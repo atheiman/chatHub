@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <!--
     Chris Delpire and Austin Heiman ChatBucket UI HTML.
-    7/14/2014
-    v0.2
+    7/19/2014
+    v01.0
 -->
 <html>
 
@@ -314,7 +314,14 @@ hr.fadeout {
             <option>Dark</option>
         </select><br>
         <input type="checkbox" id='incomingColorsCheck'><label for='incomingColorsCheck'> Ignore incoming message colors </label><br>
-        <input type="checkbox" id='incomingFontCheck'><label for='incomingFontCheck'> Ignore incoming message fonts </label>
+        <input type="checkbox" id='incomingFontCheck'><label for='incomingFontCheck'> Ignore incoming message fonts </label><br>
+        <label for="videoResSelect">Default video resolution: </label>
+        <select id='videoResSelect'>
+          <option value='0'>Tiny</option>
+          <option value='1'>Small</option>
+          <option value='2'>Medium</option>
+          <option value='3'>Large</option>
+        </select>
     </p>
     <p> <!-- Rooms Settings -->
         <label>Default Room: </label>
@@ -323,7 +330,8 @@ hr.fadeout {
             <option>Last Room</option>
         </select>
     </p>
-    <button id='saveSettingsButton' onclick='saveSettings(); closePopups();'>Save Settings</button>
+    <br>
+      <center><button id='saveSettingsButton' onclick='saveSettings(); closePopups();'>Save Settings</button></center>
 </div>
 
 <iframe id='youtubeiFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
@@ -382,7 +390,7 @@ hr.fadeout {
         <p style="margin:3px 0px;">Available Rooms:</p>
 		<hr class="fadeout">
         <ul id='roomsList'>
-			<li id='DefaultLobby' class='inline room selectedRoom' onclick='selectRoom(this)'>DefaultLobby</li><br>
+			          <li id='DefaultLobby' class='inline room selectedRoom' onclick='selectRoom(this)'>DefaultLobby</li><br>
             <li id='Automations' class='inline room unselectedRoom' onclick='selectRoom(this)'>Automations</li><br>
             <li id='Java' class='inline room unselectedRoom' onclick='selectRoom(this)'>Java</li><br>
             <li id='TV' class='inline room unselectedRoom' onclick='selectRoom(this)'>TV</li><br>
@@ -393,7 +401,7 @@ hr.fadeout {
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
-<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<!--<script src="http://code.jquery.com/jquery-1.11.1.js"></script>-->
 <script src="/functions.js"></script>
 <script>
 
@@ -403,7 +411,7 @@ selectedRoom = "DefaultLobby";
 isBlurred = false;
 isShowingBucketInput = false;
 numberOfMissedMessages = 0;
-roomsArray = [ "DefaultLobby", "Automations", "Java", "TV", "Rick and Morty", "Misc" ]; 
+roomsArray = [ "DefaultLobby", "Automations", "Java", "TV", "Rick and Morty", "Misc" ];
 bucketArray = [];
 setVideoResolutions = [ {width:"560px", height:"315px" }, {width:"640px", height:"360px" }, {width:"853px", height:"480px" }, {width:"1280px", height:"720px" }];
 videoResolutionsPointer = 0;
@@ -431,11 +439,8 @@ bucket = {
 	  
 	  bucketInput.style.width = "200px";
 	  bucketInput.style.borderWidth="1px";
-	  //bucketInputSendSpan.style.display="inline";
 	  bucketInputSendSpan.style.opacity=1;
-	  //setTimeout(function(){bucketInputXSpan.style.display="inline"}, 1400);
 	  bucketInputXSpan.style.opacity=1;
-	  
 	  
 	},
 	collapseInput: function() {
@@ -451,8 +456,6 @@ bucket = {
 	  setTimeout(function(){bucketInput.blur();},1500);
 	  setTimeout(function(){bucketInput.style.borderWidth="0px";}, 1550);
 	  bucketInputSendSpan.style.opacity=0.1;
-	  //setTimeout(function(){bucketInputSendSpan.style.display="none";}, 1600);
-	  //bucketInputXSpan.style.display="none";
 	},
 	open: function() {
 		if(!this.isDancing)
@@ -485,7 +488,7 @@ bucket = {
 		
 		else if (item.type == "image"){
 			return; //ADD FUNCTIONALITY
-		}	
+		}
 	},
 	expand: function() {
 	
@@ -522,7 +525,7 @@ bucket = {
 			
 		else if (item.type == "image"){
 			return; //ADD FUNCTIONALITY
-		}	
+		}
 	},
 	close: function() {
 		youtubeiFrame.style.width = "0px";
@@ -591,14 +594,14 @@ function initiateGlobals() {
 
     popupBackgroundDiv = document.getElementById('popupBackgroundDiv');
     popupSettingsDiv = document.getElementById('popupSettingsDiv');
-	window.onfocus = onFocus;
-	window.onblur = onBlur;
+  	window.onfocus = onFocus;
+  	window.onblur = onBlur;
 }
 
 function main() {
     initiateGlobals();
     usernameInput.value = generateRandUsername();
-	previousUsername = myUsername;	
+	previousUsername = myUsername;
 }
 
 function onBlur() {
@@ -663,9 +666,32 @@ function saveSettings() {
   settingsObj.theme = themeSelect.value;
   settingsObj.ignoreColors = incomingColorsCheck.checked;
   settingsObj.ignoreFont = incomingFontCheck.checked;
+  settingsObj.videoResSelect = videoResSelect.value;
+  settingsObj.username = alphanumericUnderDash(usernameInput.value);
+  // settingsObj.lastRoom = selectedRoom;
+  settingsObj.font = fontSelect.value;
+  settingsObj.color = colorSelect.value;
   localStorage.settingsJSON = JSON.stringify(settingsObj);
   console.log('saving settings to localStorage and JSON string: ' + localStorage.settingsJSON);
 }
+
+function configureSettings() {
+  // set the settings saved from settingsObj obj
+  themeSelect.value = settingsObj.theme;
+  settingsObj.ignoreColors = incomingColorsCheck.checked = settingsObj.ignoreColors;
+  incomingFontCheck.checked = settingsObj.ignoreFont;
+  videoResSelect.value = settingsObj.videoResSelect;
+  usernameInput.value = settingsObj.username;
+  // selectedRoom = settingsObj.lastRoom;
+  // if (selectedRoom != "DefaultLobby") {
+  //   roomsArray.push(selectedRoom);
+  //   selectedRoomElement = addRoomToList(selectedRoom);
+  //   selectRoom(selectedRoomElement);
+  // }
+  fontSelect.value = settingsObj.font;
+  colorSelect.value = settingsObj.color;
+}
+
 function checkEnterButton(e) {
 
     var key = e.keyCode ? e.keyCode : e.which;
@@ -676,31 +702,19 @@ function checkEnterButton(e) {
     }
 }
 
-
-// function checkEnterUsername(e){
-
-// 	var key = e.keyCode ? e.keyCode : e.which;
-	
-// 	if(key == 13) {
-// 		usernameInput.blur();
-// 	}
-// }
-
 function checkEnterRoom(e){
 	
 	var key = e.keyCode ? e.keyCode : e.which;
 	
 	if(key == 13) {
-		// var input = document.getElementById('roomSearchInput');
-		// var roomsList = document.getElementById('roomsList');
-		var newRoom = alphanumericUnderDashSpace(roomSearchInput.value);
+		var newRoomString = alphanumericUnderDashSpace(roomSearchInput.value);
 		
 		roomSearchInput.blur();
 		
 		
-		if(roomsArray.indexOf(newRoom) > -1){
+		if(roomsArray.indexOf(newRoomString) > -1){
 		
-			var room = document.getElementById(newRoom);
+			var room = document.getElementById(newRoomString);
 			selectRoom(room);
 			roomSearchInput.value = "";
 			messageTextarea.focus();
@@ -708,22 +722,18 @@ function checkEnterRoom(e){
 		
 		}
 		
-		roomsArray.push(newRoom);
+		roomsArray.push(newRoomString);
 		
-		roomsList.innerHTML = roomsList.innerHTML + "<li id='" + newRoom + "' class='inline room unselectedRoom' onclick='selectRoom(this)'>" + newRoom + "</li><br>";
-		var room = document.getElementById(newRoom);
+		var room = addRoomToList(newRoomString);
 		selectRoom(room);
 		roomSearchInput.value = "";
 		messageTextarea.focus();
 	}
 }
 
-function configureSettings() {
-  // set the settings saved from settingsObj obj
-  }
-  
-function displayNone(element) {
-    element.style.display = 'none';
+function addRoomToList(newRoomString) {
+  roomsList.innerHTML = roomsList.innerHTML + "<li id='" + newRoomString + "' class='inline room unselectedRoom' onclick='selectRoom(this)'>" + newRoomString + "</li><br>";
+  return document.getElementById(newRoomString);
 }
 
 function buildMessageObject() {
