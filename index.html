@@ -918,6 +918,7 @@ socket.on('request username', function(msg) {
 		usernames[joinObj.id] = joinObj.username;
 		
 		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" + oldName + " has changed their name to " + joinObj.username + ".</p>";
+		chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 		var listItem = document.getElementById(joinObj.id);
 		listItem.innerHTML = joinObj.username;
 
@@ -936,6 +937,7 @@ socket.on('request username', function(msg) {
 		}
 			
 		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" + name+ " has left the room.</p>";
+		chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 	});
 
 function cleanInput(input) {
