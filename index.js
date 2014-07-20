@@ -135,7 +135,7 @@ io.on('connection', function(socket){
 		
 		var embeddedLink = "http://i.imgur.com/" + imgurParts[imgurParts.length-1] + ".gif";
 		
-		var bucketItem = { type:"imgur", src:embeddedLink }
+		var bucketItem = { id:userId, type:"imgur", src:embeddedLink }
 		
 		roomBuckets[room].push(bucketItem);
 		
@@ -154,7 +154,7 @@ io.on('connection', function(socket){
 	
 		var embeddedLink = "//www.youtube.com/embed/" + youtubeParts[1]
 		
-		var bucketItem = { type:"youtube", src:embeddedLink }
+		var bucketItem = { id:userId, type:"youtube", src:embeddedLink }
 		
 		roomBuckets[room].push(bucketItem);
 		

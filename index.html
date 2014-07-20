@@ -881,6 +881,17 @@ socket.on('request username', function(msg) {
 		console.log("Bucket Item Received: " + bucketItem);
 		bucket.contentsArray.push(bucketItem);
 		
+		var bucketTypeString = "an item";
+		
+		if(bucketItem.type == "youtube")
+			bucketTypeString = "a Youtube video";
+		else if(bucketItem.type == "imgur")
+			bucketTypeString = "an Imgur image";
+		
+		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" +  usernames[bucketItem.id] + " has put " + bucketTypeString + " in the bucket.</p>";
+		chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
+		
+		
 		if(bucket.isExpanded){
 			bucketNextSpan.style.color = "#00FF00";
 			return;
