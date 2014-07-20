@@ -208,13 +208,13 @@ hr.fadeout {
   color:black;
   display:none;
 }
-#youtubeiFrame {
+#iFrame {
   position:absolute;
   top:13px;
   right:285px;
   height:0px;
   width:0px;
-  transition: width 1s, height 1s;
+  transition: width .8s, height .8s;
   display:block;
 }
 @-webkit-keyframes dance {
@@ -334,7 +334,7 @@ hr.fadeout {
       <center><button id='saveSettingsButton' onclick='saveSettings(); closePopups();'>Save Settings</button></center>
 </div>
 
-<iframe id='youtubeiFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
+<iframe id='iFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
 <span id="bucketSpan" class="octicon octicon-paintcan right larger pointer block gray" onclick='bucket.open()' ></span>
 <span id="bucketXSpan" class="octicon octicon-x right larger pointer" onclick="bucket.close()"></span>
 <span id="bucketNextSpan" class="octicon octicon-chevron-right right larger pointer" onclick="bucket.next()"></span>
@@ -413,7 +413,7 @@ isShowingBucketInput = false;
 numberOfMissedMessages = 0;
 roomsArray = [ "DefaultLobby", "Automations", "Java", "TV", "Rick and Morty", "Misc" ];
 bucketArray = [];
-setVideoResolutions = [ {width:"560px", height:"315px" }, {width:"640px", height:"360px" }, {width:"853px", height:"480px" }, {width:"1280px", height:"720px" }];
+setVideoResolutions = [ {width:"320px", height:"180px" }, {width:"640px", height:"360px" }, {width:"853px", height:"480px" }, {width:"1280px", height:"720px" }];
 videoResolutionsPointer = 0;
 bucket = {
 	contentsArray:[],
@@ -480,23 +480,30 @@ bucket = {
 			bucketNextSpan.style.color = "#00FF00";
 			
 		if(item.type == "youtube"){
-			youtubeiFrame.src = item.src;
-			youtubeiFrame.style.display = "block";
-			setTimeout(function(){youtubeiFrame.style.width = "320px";},100);
-			setTimeout(function(){youtubeiFrame.style.height = "180px";},100);
+			iFrame.src = item.src;
+			setTimeout(function(){iFrame.style.width = setVideoResolutions[videoResolutionsPointer].width;},100);
+			setTimeout(function(){iFrame.style.height = setVideoResolutions[videoResolutionsPointer].height;},100);
 		}
 		
-		else if (item.type == "image"){
-			return; //ADD FUNCTIONALITY
-		}
+		else if (item.type == "imgur"){
+			var tempImg = new Image();
+			tempImg.src = item.src;
+			iFrame.src = item.src;
+			
+			//var ratio = tempImg.height / setVideoResolutions[videoResolutionsPointer].height;
+			//var width = tempImg.width * ratio;
+			
+			setTimeout(function(){iFrame.style.width = tempImg.width*.5+"px";},100);
+			setTimeout(function(){iFrame.style.height = tempImg.height*.5+"px";},100);
+		}	
 	},
 	expand: function() {
 	
 		if(videoResolutionsPointer + 1 == setVideoResolutions.length)
 			return;
 		var size = setVideoResolutions[++videoResolutionsPointer];
-		setTimeout(function(){youtubeiFrame.style.width = size.width},100);
-		setTimeout(function(){youtubeiFrame.style.height = size.height;},100);
+		setTimeout(function(){iFrame.style.width = size.width},100);
+		setTimeout(function(){iFrame.style.height = size.height;},100);
 		
 	},
 	contract: function() {
@@ -504,8 +511,8 @@ bucket = {
 		if(videoResolutionsPointer - 1 < 0)
 			return;
 		var size = setVideoResolutions[--videoResolutionsPointer];
-		setTimeout(function(){youtubeiFrame.style.width = size.width;},100);
-		setTimeout(function(){youtubeiFrame.style.height = size.height;},100);
+		setTimeout(function(){iFrame.style.width = size.width;},100);
+		setTimeout(function(){iFrame.style.height = size.height;},100);
 	},
 	next: function() {
 	
@@ -520,16 +527,29 @@ bucket = {
 		}
 		
 		if(item.type == "youtube"){
-				youtubeiFrame.src = item.src;
+				var size = setVideoResolutions[videoResolutionsPointer];
+				setTimeout(function(){iFrame.style.width = "0px";},100);
+				setTimeout(function(){iFrame.style.height = "0px";},100);
+				setTimeout(function(){iFrame.src = item.src;},1000);
+				setTimeout(function(){iFrame.style.width = size.width;},1000);
+				setTimeout(function(){iFrame.style.height = size.height;},1000);
+				
 			}
 			
-		else if (item.type == "image"){
-			return; //ADD FUNCTIONALITY
-		}
+		else if (item.type == "imgur"){
+			var tempImg = new Image();
+			tempImg.src = item.src;
+			setTimeout(function(){iFrame.style.width = "0px";},100);
+			setTimeout(function(){iFrame.style.height = "0px";},100);
+			setTimeout(function(){iFrame.src = item.src;},1000);
+			setTimeout(function(){iFrame.style.width = tempImg.width+"px";},1000);
+			setTimeout(function(){iFrame.style.height = tempImg.height+"px";},1000);
+			
+		}	
 	},
 	close: function() {
-		youtubeiFrame.style.width = "0px";
-		youtubeiFrame.style.height = "0px";
+		iFrame.style.width = "0px";
+		iFrame.style.height = "0px";
 		bucketXSpan.style.display = "none";
 		bucketNextSpan.style.display = "none";
 		bucketPlusSpan.style.display = "none";
@@ -571,7 +591,7 @@ function initiateGlobals() {
     incomingFontCheck = document.getElementById('incomingFontCheck');
     roomSearchInput = document.getElementById('roomSearchInput');
     roomsList = document.getElementById('roomsList');
-  	youtubeiFrame = document.getElementById('youtubeiFrame');
+  	iFrame = document.getElementById('iFrame');
   	bucketSpan = document.getElementById('bucketSpan');
   	bucketXSpan = document.getElementById('bucketXSpan');
 	bucketNextSpan = document.getElementById('bucketNextSpan');
@@ -852,7 +872,7 @@ socket.on('request username', function(msg) {
 	
 	socket.on('play video', function(link) {
 	  expandBucket("320px","180px");
-		youtubeiFrame.src=link;
+		iFrame.src=link;
 	});
 	
 	socket.on('changed name', function(joinObj){
