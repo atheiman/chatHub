@@ -301,8 +301,10 @@ hr.fadeout {
   opacity:0.1;
   transition: opacity 1.5s;
 }
-<Merge Conflict>
-
+.icon:hover {
+	text-shadow: 0px 0px 25px gray;
+	/*text-shadow: h-shadow v-shadow blur color|none|initial|inherit;*/
+}
 </style>
 </head>
 
@@ -341,15 +343,15 @@ hr.fadeout {
 </div>
 
 <iframe id='iFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
-<span id="bucketSpan" class="octicon octicon-paintcan right larger pointer block gray" onclick='bucket.open()' ></span>
-<span id="bucketXSpan" class="octicon octicon-x right larger pointer" onclick="bucket.close()"></span>
-<span id="bucketNextSpan" class="octicon octicon-chevron-right right larger pointer" onclick="bucket.next()"></span>
-<span id="bucketPlusSpan" class="octicon octicon-plus right larger pointer" onclick="bucket.expand()"></span>
-<span id="bucketMinusSpan" class="octicon octicon-dash right larger pointer" onclick="bucket.contract()"></span>
+<span id="bucketSpan" class="icon octicon octicon-paintcan right larger pointer block gray" onclick='bucket.open()' ></span>
+<span id="bucketXSpan" class="icon octicon octicon-x right larger pointer" onclick="bucket.close()"></span>
+<span id="bucketNextSpan" class="icon octicon octicon-chevron-right right larger pointer" onclick="bucket.next()"></span>
+<span id="bucketPlusSpan" class="icon octicon octicon-plus right larger pointer" onclick="bucket.expand()"></span>
+<span id="bucketMinusSpan" class="icon octicon octicon-dash right larger pointer" onclick="bucket.contract()"></span>
 <div id="bucketInputDiv">
-	<span id="bucketInputSendSpan" class="octicon octicon-check right larger pointer" onclick="bucket.send(bucketInput.value)" onmouseover="bucket.showInput();"></span>
+	<span id="bucketInputSendSpan" class="icon octicon octicon-check right larger pointer" onclick="bucket.send(bucketInput.value)" onmouseover="bucket.showInput();"></span>
 	<input id="bucketInput" type="text">
-	<span id="bucketInputXSpan" class="octicon octicon-x right larger pointer" onclick="bucket.collapseInput()" onmouseover="bucket.showInput();"></span>
+	<span id="bucketInputXSpan" class="icon octicon octicon-x right larger pointer" onclick="bucket.collapseInput()" onmouseover="bucket.showInput();"></span>
 </div>
 
 <div id='leftColumn' class='column'>
@@ -383,7 +385,7 @@ hr.fadeout {
 
 <div id='rightColumn' class='column'>
     <div id='settingsDiv' class='card'>
-        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='13' maxlength='18' onchange="nameOnBlur();"><span class="octicon octicon-gear right larger pointer" onclick='displaySettings()' style="padding-top:1px;"></span>
+        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='13' maxlength='18' onchange="nameOnBlur();"><span id='settingsIcon' class="icon octicon octicon-gear right larger pointer" onclick='displaySettings()' onhover='shadow(this)' style="padding-top:1px;"></span>
     </div>
     <div id='roomMembersDiv' class='card'>
         Users in "DefaultLobby"
@@ -423,8 +425,8 @@ setVideoResolutions = [ {width:"320px", height:"180px" }, {width:"640px", height
 videoResolutionsPointer = 0;
 bucket = {
 	contentsArray:[],
-	dance:function() { bucketSpan.className = "octicon octicon-paintcan right larger pointer block black dance"; this.isDancing=true; },
-	calm:function() { bucketSpan.className = "octicon octicon-paintcan right larger pointer block gray"; this.isDancing=false; },
+	dance:function() { bucketSpan.className = "icon octicon octicon-paintcan right larger pointer block black dance"; this.isDancing=true; },
+	calm:function() { bucketSpan.className = "icon octicon octicon-paintcan right larger pointer block gray"; this.isDancing=false; },
 	isDancing:false,
 	isExpanded:false,
 	send: function(link){
@@ -501,7 +503,7 @@ bucket = {
 			
 			setTimeout(function(){iFrame.style.width = tempImg.width*.5+"px";},100);
 			setTimeout(function(){iFrame.style.height = tempImg.height*.5+"px";},100);
-		}	
+		}
 	},
 	expand: function() {
 	
@@ -551,7 +553,7 @@ bucket = {
 			setTimeout(function(){iFrame.style.width = tempImg.width+"px";},1000);
 			setTimeout(function(){iFrame.style.height = tempImg.height+"px";},1000);
 			
-		}	
+		}
 	},
 	close: function() {
 		iFrame.style.width = "0px";
@@ -609,6 +611,8 @@ function initiateGlobals() {
 	popupBackgroundDiv = document.getElementById('popupBackgroundDiv');
 	popupSettingsDiv = document.getElementById('popupSettingsDiv');
 	cardElements = document.getElementsByClassName('card');
+	settingsIcon = document.getElementById('settingsIcon');
+	iconElements = document.getElementsByClassName('icon');
 	window.onfocus = onFocus;
 	window.onblur = onBlur;
 }
@@ -880,6 +884,17 @@ socket.on('request username', function(msg) {
 	socket.on('new bucketItem', function(bucketItem) {
 		console.log("Bucket Item Received: " + bucketItem);
 		bucket.contentsArray.push(bucketItem);
+		
+		var bucketTypeString = "an item";
+		
+		if(bucketItem.type == "youtube")
+			bucketTypeString = "a Youtube video";
+		else if(bucketItem.type == "imgur")
+			bucketTypeString = "an Imgur image";
+		
+		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" +  usernames[bucketItem.id] + " has put " + bucketTypeString + " in the bucket.</p>";
+		chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
+		
 		
 		if(bucket.isExpanded){
 			bucketNextSpan.style.color = "#00FF00";
