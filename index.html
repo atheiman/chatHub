@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <!--
     Chris Delpire and Austin Heiman ChatBucket UI HTML.
-    7/14/2014
-    v0.2
+    7/19/2014
+    v01.0
 -->
 <html>
 
@@ -95,6 +95,8 @@ input , textarea {
     width:45%;
     min-height:250px;
     overflow-y:auto;
+    max-width:350px;
+    max-height:400px;
 }
 #rightColumn {
     width:250px;
@@ -125,9 +127,6 @@ h1 , h2 , h3 , h4 {
     padding:0px;
     margin:0px;
 }
-/*li.noBullet {*/
-/*  list-style-type: none;*/
-/*}*/
 li {
   list-style-type:none;
 }
@@ -209,13 +208,13 @@ hr.fadeout {
   color:black;
   display:none;
 }
-#youtubeiFrame {
+#iFrame {
   position:absolute;
   top:13px;
   right:285px;
   height:0px;
   width:0px;
-  transition: width 1s, height 1s;
+  transition: width .8s, height .8s;
   display:block;
 }
 @-webkit-keyframes dance {
@@ -309,13 +308,20 @@ hr.fadeout {
     <h2 class='center'>Settings</h2>
     <hr class="fadeout">
     <p> <!-- UI Settings -->
-        <label>UI Theme: </label>
+        <label for='themeSelect'>UI Theme: </label>
         <select id='themeSelect'>
             <option>Light</option>
             <option>Dark</option>
         </select><br>
-        <input type="checkbox" id='incomingColorsCheck'><label> Ignore incoming message colors </label><br>
-        <input type="checkbox" id='incomingFontCheck'><label> Ignore incoming message fonts </label>
+        <input type="checkbox" id='incomingColorsCheck'><label for='incomingColorsCheck'> Ignore incoming message colors </label><br>
+        <input type="checkbox" id='incomingFontCheck'><label for='incomingFontCheck'> Ignore incoming message fonts </label><br>
+        <label for="videoResSelect">Default video resolution: </label>
+        <select id='videoResSelect'>
+          <option value='0'>Tiny</option>
+          <option value='1'>Small</option>
+          <option value='2'>Medium</option>
+          <option value='3'>Large</option>
+        </select>
     </p>
     <p> <!-- Rooms Settings -->
         <label>Default Room: </label>
@@ -324,10 +330,11 @@ hr.fadeout {
             <option>Last Room</option>
         </select>
     </p>
-    <button id='saveSettingsButton' onclick='saveSettings()'>Save Settings</button>
+    <br>
+      <center><button id='saveSettingsButton' onclick='saveSettings(); closePopups();'>Save Settings</button></center>
 </div>
 
-<iframe id='youtubeiFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
+<iframe id='iFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
 <span id="bucketSpan" class="octicon octicon-paintcan right larger pointer block gray" onclick='bucket.open()' ></span>
 <span id="bucketXSpan" class="octicon octicon-x right larger pointer" onclick="bucket.close()"></span>
 <span id="bucketNextSpan" class="octicon octicon-chevron-right right larger pointer" onclick="bucket.next()"></span>
@@ -383,7 +390,7 @@ hr.fadeout {
         <p style="margin:3px 0px;">Available Rooms:</p>
 		<hr class="fadeout">
         <ul id='roomsList'>
-			<li id='DefaultLobby' class='inline room selectedRoom' onclick='selectRoom(this)'>DefaultLobby</li><br>
+			          <li id='DefaultLobby' class='inline room selectedRoom' onclick='selectRoom(this)'>DefaultLobby</li><br>
             <li id='Automations' class='inline room unselectedRoom' onclick='selectRoom(this)'>Automations</li><br>
             <li id='Java' class='inline room unselectedRoom' onclick='selectRoom(this)'>Java</li><br>
             <li id='TV' class='inline room unselectedRoom' onclick='selectRoom(this)'>TV</li><br>
@@ -394,7 +401,7 @@ hr.fadeout {
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
-<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<!--<script src="http://code.jquery.com/jquery-1.11.1.js"></script>-->
 <script src="/functions.js"></script>
 <script>
 
@@ -404,9 +411,9 @@ selectedRoom = "DefaultLobby";
 isBlurred = false;
 isShowingBucketInput = false;
 numberOfMissedMessages = 0;
-roomsArray = [ "DefaultLobby", "Automations", "Java", "TV", "Rick and Morty", "Misc" ]; 
+roomsArray = [ "DefaultLobby", "Automations", "Java", "TV", "Rick and Morty", "Misc" ];
 bucketArray = [];
-setVideoResolutions = [ {width:"560px", height:"315px" }, {width:"640px", height:"360px" }, {width:"853px", height:"480px" }, {width:"1280px", height:"720px" }];
+setVideoResolutions = [ {width:"320px", height:"180px" }, {width:"640px", height:"360px" }, {width:"853px", height:"480px" }, {width:"1280px", height:"720px" }];
 videoResolutionsPointer = 0;
 bucket = {
 	contentsArray:[],
@@ -432,11 +439,8 @@ bucket = {
 	  
 	  bucketInput.style.width = "200px";
 	  bucketInput.style.borderWidth="1px";
-	  //bucketInputSendSpan.style.display="inline";
 	  bucketInputSendSpan.style.opacity=1;
-	  //setTimeout(function(){bucketInputXSpan.style.display="inline"}, 1400);
 	  bucketInputXSpan.style.opacity=1;
-	  
 	  
 	},
 	collapseInput: function() {
@@ -452,8 +456,6 @@ bucket = {
 	  setTimeout(function(){bucketInput.blur();},1500);
 	  setTimeout(function(){bucketInput.style.borderWidth="0px";}, 1550);
 	  bucketInputSendSpan.style.opacity=0.1;
-	  //setTimeout(function(){bucketInputSendSpan.style.display="none";}, 1600);
-	  //bucketInputXSpan.style.display="none";
 	},
 	open: function() {
 		if(!this.isDancing)
@@ -478,14 +480,21 @@ bucket = {
 			bucketNextSpan.style.color = "#00FF00";
 			
 		if(item.type == "youtube"){
-			youtubeiFrame.src = item.src;
-			youtubeiFrame.style.display = "block";
-			setTimeout(function(){youtubeiFrame.style.width = "320px";},100);
-			setTimeout(function(){youtubeiFrame.style.height = "180px";},100);
+			iFrame.src = item.src;
+			setTimeout(function(){iFrame.style.width = setVideoResolutions[videoResolutionsPointer].width;},100);
+			setTimeout(function(){iFrame.style.height = setVideoResolutions[videoResolutionsPointer].height;},100);
 		}
 		
-		else if (item.type == "image"){
-			return; //ADD FUNCTIONALITY
+		else if (item.type == "imgur"){
+			var tempImg = new Image();
+			tempImg.src = item.src;
+			iFrame.src = item.src;
+			
+			//var ratio = tempImg.height / setVideoResolutions[videoResolutionsPointer].height;
+			//var width = tempImg.width * ratio;
+			
+			setTimeout(function(){iFrame.style.width = tempImg.width*.5+"px";},100);
+			setTimeout(function(){iFrame.style.height = tempImg.height*.5+"px";},100);
 		}	
 	},
 	expand: function() {
@@ -493,8 +502,8 @@ bucket = {
 		if(videoResolutionsPointer + 1 == setVideoResolutions.length)
 			return;
 		var size = setVideoResolutions[++videoResolutionsPointer];
-		setTimeout(function(){youtubeiFrame.style.width = size.width},100);
-		setTimeout(function(){youtubeiFrame.style.height = size.height;},100);
+		setTimeout(function(){iFrame.style.width = size.width},100);
+		setTimeout(function(){iFrame.style.height = size.height;},100);
 		
 	},
 	contract: function() {
@@ -502,8 +511,8 @@ bucket = {
 		if(videoResolutionsPointer - 1 < 0)
 			return;
 		var size = setVideoResolutions[--videoResolutionsPointer];
-		setTimeout(function(){youtubeiFrame.style.width = size.width;},100);
-		setTimeout(function(){youtubeiFrame.style.height = size.height;},100);
+		setTimeout(function(){iFrame.style.width = size.width;},100);
+		setTimeout(function(){iFrame.style.height = size.height;},100);
 	},
 	next: function() {
 	
@@ -518,16 +527,29 @@ bucket = {
 		}
 		
 		if(item.type == "youtube"){
-				youtubeiFrame.src = item.src;
+				var size = setVideoResolutions[videoResolutionsPointer];
+				setTimeout(function(){iFrame.style.width = "0px";},100);
+				setTimeout(function(){iFrame.style.height = "0px";},100);
+				setTimeout(function(){iFrame.src = item.src;},1000);
+				setTimeout(function(){iFrame.style.width = size.width;},1000);
+				setTimeout(function(){iFrame.style.height = size.height;},1000);
+				
 			}
 			
-		else if (item.type == "image"){
-			return; //ADD FUNCTIONALITY
+		else if (item.type == "imgur"){
+			var tempImg = new Image();
+			tempImg.src = item.src;
+			setTimeout(function(){iFrame.style.width = "0px";},100);
+			setTimeout(function(){iFrame.style.height = "0px";},100);
+			setTimeout(function(){iFrame.src = item.src;},1000);
+			setTimeout(function(){iFrame.style.width = tempImg.width+"px";},1000);
+			setTimeout(function(){iFrame.style.height = tempImg.height+"px";},1000);
+			
 		}	
 	},
 	close: function() {
-		youtubeiFrame.style.width = "0px";
-		youtubeiFrame.style.height = "0px";
+		iFrame.style.width = "0px";
+		iFrame.style.height = "0px";
 		bucketXSpan.style.display = "none";
 		bucketNextSpan.style.display = "none";
 		bucketPlusSpan.style.display = "none";
@@ -569,7 +591,7 @@ function initiateGlobals() {
     incomingFontCheck = document.getElementById('incomingFontCheck');
     roomSearchInput = document.getElementById('roomSearchInput');
     roomsList = document.getElementById('roomsList');
-  	youtubeiFrame = document.getElementById('youtubeiFrame');
+  	iFrame = document.getElementById('iFrame');
   	bucketSpan = document.getElementById('bucketSpan');
   	bucketXSpan = document.getElementById('bucketXSpan');
 	bucketNextSpan = document.getElementById('bucketNextSpan');
@@ -580,26 +602,26 @@ function initiateGlobals() {
 
     // load settings from localStorage if existing
     if (localStorage.getItem("settingsJSON") !== null) {
-      mySettings = JSON.parse(localStorage.settingsJSON);
-      console.log('loading localStorage settings into mySettings...');
+      settingsObj = JSON.parse(localStorage.settingsJSON);
+      console.log('loading localStorage settings into settingsObj...');
     } else {
-      mySettings = {};
-      console.log('no localStorage settings found, intializing mySettings');
+      settingsObj = {};
+      console.log('no localStorage settings found, intializing settingsObj');
     }
     configureSettings()
     console.log("settings loaded:");
-    console.log(mySettings);
+    console.log(settingsObj);
 
     popupBackgroundDiv = document.getElementById('popupBackgroundDiv');
     popupSettingsDiv = document.getElementById('popupSettingsDiv');
-	window.onfocus = onFocus;
-	window.onblur = onBlur;
+  	window.onfocus = onFocus;
+  	window.onblur = onBlur;
 }
 
 function main() {
     initiateGlobals();
     usernameInput.value = generateRandUsername();
-	previousUsername = myUsername;	
+	previousUsername = myUsername;
 }
 
 function onBlur() {
@@ -660,14 +682,36 @@ function closePopups() {
 }
 
 function saveSettings() {
-  // save all settings to mySettings object
-  //mySettings.theme
-  //mySettings.ignoreColors = incomingColorsCheck
-  //mySettings.ignoreFont = incomingFontCheck.checked
-  localStorage.settingsJSON = JSON.stringify(mySettings);
-  closePopups();
-  
-  }
+  // save all settings to settingsObj
+  settingsObj.theme = themeSelect.value;
+  settingsObj.ignoreColors = incomingColorsCheck.checked;
+  settingsObj.ignoreFont = incomingFontCheck.checked;
+  settingsObj.videoResSelect = videoResSelect.value;
+  settingsObj.username = alphanumericUnderDash(usernameInput.value);
+  // settingsObj.lastRoom = selectedRoom;
+  settingsObj.font = fontSelect.value;
+  settingsObj.color = colorSelect.value;
+  localStorage.settingsJSON = JSON.stringify(settingsObj);
+  console.log('saving settings to localStorage and JSON string: ' + localStorage.settingsJSON);
+}
+
+function configureSettings() {
+  // set the settings saved from settingsObj obj
+  themeSelect.value = settingsObj.theme;
+  settingsObj.ignoreColors = incomingColorsCheck.checked = settingsObj.ignoreColors;
+  incomingFontCheck.checked = settingsObj.ignoreFont;
+  videoResSelect.value = settingsObj.videoResSelect;
+  usernameInput.value = settingsObj.username;
+  // selectedRoom = settingsObj.lastRoom;
+  // if (selectedRoom != "DefaultLobby") {
+  //   roomsArray.push(selectedRoom);
+  //   selectedRoomElement = addRoomToList(selectedRoom);
+  //   selectRoom(selectedRoomElement);
+  // }
+  fontSelect.value = settingsObj.font;
+  colorSelect.value = settingsObj.color;
+}
+
 function checkEnterButton(e) {
 
     var key = e.keyCode ? e.keyCode : e.which;
@@ -678,31 +722,19 @@ function checkEnterButton(e) {
     }
 }
 
-
-// function checkEnterUsername(e){
-
-// 	var key = e.keyCode ? e.keyCode : e.which;
-	
-// 	if(key == 13) {
-// 		usernameInput.blur();
-// 	}
-// }
-
 function checkEnterRoom(e){
 	
 	var key = e.keyCode ? e.keyCode : e.which;
 	
 	if(key == 13) {
-		// var input = document.getElementById('roomSearchInput');
-		// var roomsList = document.getElementById('roomsList');
-		var newRoom = alphanumericUnderDashSpace(roomSearchInput.value);
+		var newRoomString = alphanumericUnderDashSpace(roomSearchInput.value);
 		
 		roomSearchInput.blur();
 		
 		
-		if(roomsArray.indexOf(newRoom) > -1){
+		if(roomsArray.indexOf(newRoomString) > -1){
 		
-			var room = document.getElementById(newRoom);
+			var room = document.getElementById(newRoomString);
 			selectRoom(room);
 			roomSearchInput.value = "";
 			messageTextarea.focus();
@@ -710,22 +742,18 @@ function checkEnterRoom(e){
 		
 		}
 		
-		roomsArray.push(newRoom);
+		roomsArray.push(newRoomString);
 		
-		roomsList.innerHTML = roomsList.innerHTML + "<li id='" + newRoom + "' class='inline room unselectedRoom' onclick='selectRoom(this)'>" + newRoom + "</li><br>";
-		var room = document.getElementById(newRoom);
+		var room = addRoomToList(newRoomString);
 		selectRoom(room);
 		roomSearchInput.value = "";
 		messageTextarea.focus();
 	}
 }
 
-function configureSettings() {
-  // set the settings saved from mySettings obj
-  }
-  
-function displayNone(element) {
-    element.style.display = 'none';
+function addRoomToList(newRoomString) {
+  roomsList.innerHTML = roomsList.innerHTML + "<li id='" + newRoomString + "' class='inline room unselectedRoom' onclick='selectRoom(this)'>" + newRoomString + "</li><br>";
+  return document.getElementById(newRoomString);
 }
 
 function buildMessageObject() {
@@ -844,7 +872,7 @@ socket.on('request username', function(msg) {
 	
 	socket.on('play video', function(link) {
 	  expandBucket("320px","180px");
-		youtubeiFrame.src=link;
+		iFrame.src=link;
 	});
 	
 	socket.on('changed name', function(joinObj){
