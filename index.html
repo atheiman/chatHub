@@ -95,6 +95,8 @@ input , textarea {
     width:45%;
     min-height:250px;
     overflow-y:auto;
+    max-width:350px;
+    max-height:400px;
 }
 #rightColumn {
     width:250px;
@@ -125,9 +127,6 @@ h1 , h2 , h3 , h4 {
     padding:0px;
     margin:0px;
 }
-/*li.noBullet {*/
-/*  list-style-type: none;*/
-/*}*/
 li {
   list-style-type:none;
 }
@@ -288,13 +287,13 @@ hr.fadeout {
     <h2 class='center'>Settings</h2>
     <hr class="fadeout">
     <p> <!-- UI Settings -->
-        <label>UI Theme: </label>
+        <label for='themeSelect'>UI Theme: </label>
         <select id='themeSelect'>
             <option>Light</option>
             <option>Dark</option>
         </select><br>
-        <input type="checkbox" id='incomingColorsCheck'><label> Ignore incoming message colors </label><br>
-        <input type="checkbox" id='incomingFontCheck'><label> Ignore incoming message fonts </label>
+        <input type="checkbox" id='incomingColorsCheck'><label for='incomingColorsCheck'> Ignore incoming message colors </label><br>
+        <input type="checkbox" id='incomingFontCheck'><label for='incomingFontCheck'> Ignore incoming message fonts </label>
     </p>
     <p> <!-- Rooms Settings -->
         <label>Default Room: </label>
@@ -303,7 +302,7 @@ hr.fadeout {
             <option>Last Room</option>
         </select>
     </p>
-    <button id='saveSettingsButton' onclick='saveSettings()'>Save Settings</button>
+    <button id='saveSettingsButton' onclick='saveSettings(); closePopups();'>Save Settings</button>
 </div>
 
 <iframe id='youtubeiFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
@@ -506,15 +505,15 @@ function initiateGlobals() {
 
     // load settings from localStorage if existing
     if (localStorage.getItem("settingsJSON") !== null) {
-      mySettings = JSON.parse(localStorage.settingsJSON);
-      console.log('loading localStorage settings into mySettings...');
+      settingsObj = JSON.parse(localStorage.settingsJSON);
+      console.log('loading localStorage settings into settingsObj...');
     } else {
-      mySettings = {};
-      console.log('no localStorage settings found, intializing mySettings');
+      settingsObj = {};
+      console.log('no localStorage settings found, intializing settingsObj');
     }
     configureSettings()
     console.log("settings loaded:");
-    console.log(mySettings);
+    console.log(settingsObj);
 
     popupBackgroundDiv = document.getElementById('popupBackgroundDiv');
     popupSettingsDiv = document.getElementById('popupSettingsDiv');
@@ -586,14 +585,13 @@ function closePopups() {
 }
 
 function saveSettings() {
-  // save all settings to mySettings object
-  //mySettings.theme
-  //mySettings.ignoreColors = incomingColorsCheck
-  //mySettings.ignoreFont = incomingFontCheck.checked
-  localStorage.settingsJSON = JSON.stringify(mySettings);
-  closePopups();
-  
-  }
+  // save all settings to settingsObj
+  settingsObj.theme = themeSelect.value;
+  settingsObj.ignoreColors = incomingColorsCheck.checked;
+  settingsObj.ignoreFont = incomingFontCheck.checked;
+  localStorage.settingsJSON = JSON.stringify(settingsObj);
+  console.log('saving settings to localStorage and JSON string: ' + localStorage.settingsJSON);
+}
 function checkEnterButton(e) {
 
     var key = e.keyCode ? e.keyCode : e.which;
@@ -640,7 +638,7 @@ function checkEnterRoom(e){
 }
 
 function configureSettings() {
-  // set the settings saved from mySettings obj
+  // set the settings saved from settingsObj obj
   }
   
 function displayNone(element) {
