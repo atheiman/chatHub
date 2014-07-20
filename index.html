@@ -188,6 +188,27 @@ hr.fadeout {
   color:red;
   display:none;
 }
+#bucketNextSpan {
+  position:absolute;
+  top:40px;
+  right:263px;
+  color:#BDBDBD;
+  display:none;
+}
+#bucketPlusSpan {
+  position:absolute;
+  top:67px;
+  right:263px;
+  color:black;
+  display:none;
+}
+#bucketMinusSpan {
+  position:absolute;
+  top:94px;
+  right:263px;
+  color:black;
+  display:none;
+}
 #youtubeiFrame {
   position:absolute;
   top:13px;
@@ -271,7 +292,7 @@ hr.fadeout {
   transition: opacity 1.5s;
 }
 #bucketInputSendSpan {
-  color:green;
+  color:#00FF00;
   padding:2px;
   display:inline;
   opacity:0.1;
@@ -309,8 +330,11 @@ hr.fadeout {
 <iframe id='youtubeiFrame' width="320" height="180" src="" frameborder="0" allowfullscreen></iframe>
 <span id="bucketSpan" class="octicon octicon-paintcan right larger pointer block gray" onclick='bucket.open()' ></span>
 <span id="bucketXSpan" class="octicon octicon-x right larger pointer" onclick="bucket.close()"></span>
+<span id="bucketNextSpan" class="octicon octicon-chevron-right right larger pointer" onclick="bucket.next()"></span>
+<span id="bucketPlusSpan" class="octicon octicon-plus right larger pointer" onclick="bucket.expand()"></span>
+<span id="bucketMinusSpan" class="octicon octicon-dash right larger pointer" onclick="bucket.contract()"></span>
 <div id="bucketInputDiv">
-	<span id="bucketInputSendSpan" class="octicon octicon-mail-reply right larger pointer" onclick="bucket.send(bucketInput.value)" onmouseover="bucket.showInput();"></span>
+	<span id="bucketInputSendSpan" class="octicon octicon-check right larger pointer" onclick="bucket.send(bucketInput.value)" onmouseover="bucket.showInput();"></span>
 	<input id="bucketInput" type="text">
 	<span id="bucketInputXSpan" class="octicon octicon-x right larger pointer" onclick="bucket.collapseInput()" onmouseover="bucket.showInput();"></span>
 </div>
@@ -380,7 +404,10 @@ selectedRoom = "DefaultLobby";
 isBlurred = false;
 isShowingBucketInput = false;
 numberOfMissedMessages = 0;
+roomsArray = [ "DefaultLobby", "Automations", "Java", "TV", "Rick and Morty", "Misc" ]; 
 bucketArray = [];
+setVideoResolutions = [ {width:"560px", height:"315px" }, {width:"640px", height:"360px" }, {width:"853px", height:"480px" }, {width:"1280px", height:"720px" }];
+videoResolutionsPointer = 0;
 bucket = {
 	contentsArray:[],
 	dance:function() { bucketSpan.className = "octicon octicon-paintcan right larger pointer block black dance"; this.isDancing=true; },
@@ -443,6 +470,12 @@ bucket = {
 			
 		bucketSpan.style.display = "none";
 		bucketXSpan.style.display = "inline";
+		bucketNextSpan.style.display = "inline";
+		bucketPlusSpan.style.display = "inline";
+		bucketMinusSpan.style.display = "inline";
+		
+		if(this.contentsArray.length > 0)
+			bucketNextSpan.style.color = "#00FF00";
 			
 		if(item.type == "youtube"){
 			youtubeiFrame.src = item.src;
@@ -455,10 +488,50 @@ bucket = {
 			return; //ADD FUNCTIONALITY
 		}	
 	},
+	expand: function() {
+	
+		if(videoResolutionsPointer + 1 == setVideoResolutions.length)
+			return;
+		var size = setVideoResolutions[++videoResolutionsPointer];
+		setTimeout(function(){youtubeiFrame.style.width = size.width},100);
+		setTimeout(function(){youtubeiFrame.style.height = size.height;},100);
+		
+	},
+	contract: function() {
+	
+		if(videoResolutionsPointer - 1 < 0)
+			return;
+		var size = setVideoResolutions[--videoResolutionsPointer];
+		setTimeout(function(){youtubeiFrame.style.width = size.width;},100);
+		setTimeout(function(){youtubeiFrame.style.height = size.height;},100);
+	},
+	next: function() {
+	
+		if(this.contentsArray.length == 0) {
+			return;
+		}
+	
+		var item = this.contentsArray.shift();
+		
+		if(this.contentsArray.length == 0) {
+			bucketNextSpan.style.color = "#BDBDBD";
+		}
+		
+		if(item.type == "youtube"){
+				youtubeiFrame.src = item.src;
+			}
+			
+		else if (item.type == "image"){
+			return; //ADD FUNCTIONALITY
+		}	
+	},
 	close: function() {
 		youtubeiFrame.style.width = "0px";
 		youtubeiFrame.style.height = "0px";
 		bucketXSpan.style.display = "none";
+		bucketNextSpan.style.display = "none";
+		bucketPlusSpan.style.display = "none";
+		bucketMinusSpan.style.display = "none";
 		bucketSpan.style.display = "inline";
 		bucket.isExpanded = false;
 		
@@ -499,6 +572,7 @@ function initiateGlobals() {
   	youtubeiFrame = document.getElementById('youtubeiFrame');
   	bucketSpan = document.getElementById('bucketSpan');
   	bucketXSpan = document.getElementById('bucketXSpan');
+	bucketNextSpan = document.getElementById('bucketNextSpan');
     bucketInput = document.getElementById('bucketInput');
 	bucketInputDiv = document.getElementById('bucketInputDiv');
 	bucketInputSendSpan = document.getElementById('bucketInputSendSpan');
@@ -604,14 +678,6 @@ function checkEnterButton(e) {
     }
 }
 
-function bucketNotification(onOrOff) {
-  if (onOrOff == "on") {
-    bucketSpan.className = "octicon octicon-paintcan right larger pointer block black dance";
-  }
-  if (onOrOff == "off") {
-    bucketSpan.className = "octicon octicon-paintcan right larger pointer block gray";
-  }
-}
 
 // function checkEnterUsername(e){
 
@@ -630,7 +696,22 @@ function checkEnterRoom(e){
 		// var input = document.getElementById('roomSearchInput');
 		// var roomsList = document.getElementById('roomsList');
 		var newRoom = alphanumericUnderDashSpace(roomSearchInput.value);
+		
 		roomSearchInput.blur();
+		
+		
+		if(roomsArray.indexOf(newRoom) > -1){
+		
+			var room = document.getElementById(newRoom);
+			selectRoom(room);
+			roomSearchInput.value = "";
+			messageTextarea.focus();
+			return;
+		
+		}
+		
+		roomsArray.push(newRoom);
+		
 		roomsList.innerHTML = roomsList.innerHTML + "<li id='" + newRoom + "' class='inline room unselectedRoom' onclick='selectRoom(this)'>" + newRoom + "</li><br>";
 		var room = document.getElementById(newRoom);
 		selectRoom(room);
@@ -681,11 +762,6 @@ function nameOnBlur() {
 
 }
 
-//function closeBucket(){
-	//youtubeiFrame.src="";
-	//collapseBucketDiv();
-//}
-
 function sendMessage() {
   if (messageTextarea.value === "" ) {
     messageTextarea.focus();
@@ -702,21 +778,27 @@ function sendMessage() {
 	    console.log("message received:");
 	    console.log(messageObj);
 		
-		if(isBlurred){
-			numberOfMissedMessages++;
-			var title = document.getElementsByTagName("title");
-			title[0].innerHTML = "(" + numberOfMissedMessages + ") chatHub";
-		}
+	// display missed messages notification in tab
+	if(isBlurred){
+		numberOfMissedMessages++;
+		var title = document.getElementsByTagName("title");
+		title[0].innerHTML = "(" + numberOfMissedMessages + ") chatHub";
+	}
+	
+	console.log('message contents: ' + messageObj.contents);
+	var urlRegExp = /^(?:(?:ht|f)tp(?:s?)\:\/\/|~\/|\/)?(?:\w+:\w+@)?((?:(?:[-\w\d{1-3}]+\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|edu|co\.uk|ac\.uk|it|fr|tv|museum|asia|local|travel|[a-z]{2}))|((\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)(\.(\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)){3}))(?::[\d]{1,5})?(?:(?:(?:\/(?:[-\w~!$+|.,=]|%[a-f\d]{2})+)+|\/)+|\?|#)?(?:(?:\?(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)(?:&(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)*)*(?:#(?:[-\w~!$ |\/.,*:;=]|%[a-f\d]{2})*)?$/igm;
+
+	messageObj.contents = messageObj.contents.replace(urlRegExp,'<a href="http://$1" target="_blank">$1</a>');
+	
+	var messageString = "<p class='messageP' style='color:" + messageObj.color + ";font-family:" + messageObj.font + ";'><span class='messageInfoSpan'>[" + messageObj.username + " " + messageObj.time + "]</span> " + messageObj.contents + "</p>";
 		
-		var messageString = "<p class='messageP' style='color:" + messageObj.color + ";font-family:" + messageObj.font + ";'><span class='messageInfoSpan'>[" + messageObj.username + " " + messageObj.time + "]</span> " + messageObj.contents + "</p>";
-			
-			chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + messageString;
-			chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
-		});
+	chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + messageString;
+	chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
+});
 		
-	socket.on('request username', function(msg) {
-		socket.emit('receive username', usernameInput.value);
-	});
+socket.on('request username', function(msg) {
+	socket.emit('receive username', usernameInput.value);
+});
 		
 	socket.on('join room', function(joinObj){
 	
@@ -750,6 +832,12 @@ function sendMessage() {
 	socket.on('new bucketItem', function(bucketItem) {
 		console.log("Bucket Item Received: " + bucketItem);
 		bucket.contentsArray.push(bucketItem);
+		
+		if(bucket.isExpanded){
+			bucketNextSpan.style.color = "#00FF00";
+			return;
+		}
+		
 		bucket.dance();
 	});
 	
@@ -794,10 +882,10 @@ function cleanInput(input) {
 }
 
 function fontEffectReplace(input) {
-    input = input.replace( /\*\*(.+?)\*\*/gm, "<b>$1</b>" );
-    input = input.replace( /\_\_(.+?)\_\_/gm, "<u>$1</u>" );
-    input = input.replace( /\*(.+?)\*/gm, "<i>$1</i>" );
-    return input;
+  input = input.replace( /\*\*(.+?)\*\*/gm, "<b>$1</b>" );
+  input = input.replace( /\_\_(.+?)\_\_/gm, "<u>$1</u>" );
+  input = input.replace( /\*(.+?)\*/gm, "<i>$1</i>" );
+  return input;
 }
 
 function getTime() {
