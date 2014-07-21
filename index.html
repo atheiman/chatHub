@@ -15,12 +15,15 @@ html,body {
     height:100%;
     margin:0px;
     min-width:750px;
-    overflow-y:auto;
     min-height:300px;
     font-size:100%;
     font-family:"arial";
     background-color:#eee;
     color:#111;
+    overflow-y:none;
+}
+div {
+	overflow:none;
 }
 div.card {
   background-color:#fff;
@@ -37,10 +40,11 @@ div.card {
 div.terminalCard {
 	background-color:#111;
 	color:#eee;
+	border:4px solid #eee;
 }
 #roomMembersDiv {
-	height:145px;
-	overflow:auto;
+	height:auto;
+	overflow:none;
 }
 input , textarea {
   border:1px solid #bbb;
@@ -54,14 +58,18 @@ input , textarea {
 }
 #leftColumn {
     width:calc(100% - 250px);
+    overflow-y:none;
 }
 .column div {
     margin:6px;
     padding:6px;
 }
+::-webkit-scrollbar {
+    display: none;
+}
 #chatBoxDiv {
     height:calc(100% - 114px);
-    overflow-y:scroll;
+    overflow-y:auto;
 }
 #chatBoxDiv p.messageP {
     margin:0px;
@@ -103,7 +111,7 @@ input , textarea {
 }
 #rightColumn {
     width:250px;
-    overflow-y:auto;
+    overflow-y:none;
 }
 #rightColumn div {
     margin-left:0px;
@@ -112,6 +120,14 @@ input , textarea {
     margin: 6px 0px 0px 12px;
     border:0px;
     padding:0px;
+    overflow-y:scroll;
+		height:140px;
+}
+#roomMembersUL {
+	
+}
+#roomsList {
+	
 }
 #roomSearchInput {
     width:calc(100% - 4px);
@@ -304,13 +320,16 @@ hr.fadeout {
 	text-shadow: 0px 0px 25px gray;
 	/*text-shadow: h-shadow v-shadow blur color|none|initial|inherit;*/
 }
+#roomsListDiv {
+	height:auto;
+}
 </style>
 </head>
 
 <body id='myBody' onload="main()">
 
 <div id='popupBackgroundDiv' onclick='closePopups(); configureSettings();'></div>
-<div id='popupSettingsDiv' class='Absolute-Center card'>
+<div id='popupSettingsDiv' class='card' style="margin: auto; position: absolute; top: 0; left: 0; bottom: 0; right: 0;">
     <h2 class='center'>Settings</h2>
     <hr class="fadeout">
     <p> <!-- UI Settings -->
@@ -349,7 +368,7 @@ hr.fadeout {
 <span id="bucketMinusSpan" class="icon octicon octicon-dash right larger pointer" onclick="bucket.contract()"></span>
 <div id="bucketInputDiv">
 	<span id="bucketInputSendSpan" class="icon octicon octicon-check right larger pointer" onclick="bucket.send(bucketInput.value)" onmouseover="bucket.showInput();"></span>
-	<input id="bucketInput" type="text">
+	<input id="bucketInput" type="text" placeholder='Paste a bucket item...'>
 	<span id="bucketInputXSpan" class="icon octicon octicon-x right larger pointer" onclick="bucket.collapseInput()" onmouseover="bucket.showInput();"></span>
 </div>
 
@@ -382,9 +401,11 @@ hr.fadeout {
     </div>
 </div>
 
+<span id='settingsIcon' class="icon octicon octicon-gear right larger pointer" onclick='displaySettings()' onhover='shadow(this)' style="padding-top:1px; position:absolute; top:13px; right:25px;"></span>
+
 <div id='rightColumn' class='column'>
     <div id='settingsDiv' class='card'>
-        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='13' maxlength='18' onchange="nameOnBlur();"><span id='settingsIcon' class="icon octicon octicon-gear right larger pointer" onclick='displaySettings()' onhover='shadow(this)' style="padding-top:1px;"></span>
+        <label for='usernameInput'>Username: </label><input type='text' id='usernameInput' value='anonymous' size='13' maxlength='18' onchange="nameOnBlur();">
     </div>
     <div id='roomMembersDiv' class='card'>
         Users in "DefaultLobby"
@@ -612,6 +633,7 @@ function initiateGlobals() {
 	cardElements = document.getElementsByClassName('card');
 	settingsIcon = document.getElementById('settingsIcon');
 	iconElements = document.getElementsByClassName('icon');
+	myBody = document.getElementById('myBody');
 	window.onfocus = onFocus;
 	window.onblur = onBlur;
 }
@@ -981,9 +1003,74 @@ function generateRandUsername() {
     return myUsername;
 }
 
-function setCardsTerminal() {
-	console.log("We're going terminal...");
-	
+// function setCardsTerminal() {
+// 	var black = "#111";
+// 	var white = "#eee";
+// 	console.log("[LOG] [OPENING $VT_TERM1]...");
+// 	var cardElementsLength = cardElements.length;
+// 	for (var i=0 ; i < cardElementsLength ; i++) {
+// 		cardElements[0].className = 'terminalCard';
+// 	}
+// 	myBody.style.backgroundColor = black;
+// 	myBody.style.fontFamily = "monospace";
+// 	// background-color:#eee;
+// 	var inputElements = document.getElementsByTagName("input");
+// 	var inputElementsLength = inputElements.length;
+// 	for (var i=0 ; i<inputElementsLength ; i++) {
+// 		inputElements[i].style.backgroundColor = black;
+// 		inputElements[i].style.color = white;
+// 		inputElements[i].style.fontFamily = 'monospace';
+// 	}
+// 	messageTextarea.style.backgroundColor = black;
+// 	messageTextarea.style.color = white;
+// 	messageTextarea.style.fontFamily = 'monospace';
+// }
+
+function setUITheme(uiTheme) {
+	if (uiTheme === "Terminal") {
+		var black = "#111";
+		var white = "#eee";
+		console.log("[LOG] [OPENING $VT_TERM1]...");
+		var cardElementsLength = cardElements.length;
+		for (var i=0 ; i < cardElementsLength ; i++) {
+			cardElements[0].className = 'terminalCard';
+		}
+		myBody.style.backgroundColor = black;
+		myBody.style.fontFamily = "monospace";
+		// background-color:#eee;
+		var inputElements = document.getElementsByTagName("input");
+		var inputElementsLength = inputElements.length;
+		for (var i=0 ; i<inputElementsLength ; i++) {
+			inputElements[i].style.backgroundColor = black;
+			inputElements[i].style.color = white;
+			inputElements[i].style.fontFamily = 'monospace';
+		}
+		messageTextarea.style.backgroundColor = black;
+		messageTextarea.style.color = white;
+		messageTextarea.style.fontFamily = 'monospace';
+	}
+	if (uiTheme === "Cards") {
+		var black = "#111";
+		var white = "#eee";
+		console.log("[LOG] [OPENING $VT_TERM1]...");
+		var cardElementsLength = cardElements.length;
+		for (var i=0 ; i < cardElementsLength ; i++) {
+			cardElements[0].className = 'terminalCard';
+		}
+		myBody.style.backgroundColor = black;
+		myBody.style.fontFamily = "monospace";
+		// background-color:#eee;
+		var inputElements = document.getElementsByTagName("input");
+		var inputElementsLength = inputElements.length;
+		for (var i=0 ; i<inputElementsLength ; i++) {
+			inputElements[i].style.backgroundColor = black;
+			inputElements[i].style.color = white;
+			inputElements[i].style.fontFamily = 'monospace';
+		}
+		messageTextarea.style.backgroundColor = black;
+		messageTextarea.style.color = white;
+		messageTextarea.style.fontFamily = 'monospace';
+	}
 }
 
 </script>
