@@ -197,40 +197,40 @@ hr.fadeout {
 #bucketSpan {
   position:absolute;
   top:13px;
-  right:283px;
+  right:263px;
 }
 #bucketXSpan {
   position:absolute;
   top:13px;
-  right:283px;
+  right:263px;
   color:red;
   display:none;
 }
 #bucketNextSpan {
   position:absolute;
   top:40px;
-  right:283px;
+  right:263px;
   color:#BDBDBD;
   display:none;
 }
 #bucketPlusSpan {
   position:absolute;
   top:67px;
-  right:283px;
+  right:263px;
   color:black;
   display:none;
 }
 #bucketMinusSpan {
   position:absolute;
   top:94px;
-  right:283px;
+  right:263px;
   color:black;
   display:none;
 }
 #iFrame {
   position:absolute;
   top:13px;
-  right:305px;
+  right:285px;
   height:0px;
   width:0px;
   transition: width .8s, height .8s;
@@ -299,7 +299,7 @@ hr.fadeout {
 #bucketInputDiv {
   position:absolute;
   top:10px;
-  right:305px;
+  right:285px;
   width:400px;
 }
 #bucketInputXSpan {
@@ -317,7 +317,7 @@ hr.fadeout {
   transition: opacity 1.5s;
 }
 .icon:hover {
-	text-shadow: 0px 0px 25px gray;
+	text-shadow: 0px 0px 15px #3399ff;
 	/*text-shadow: h-shadow v-shadow blur color|none|initial|inherit;*/
 }
 #roomsListDiv {
@@ -418,12 +418,18 @@ hr.fadeout {
         <p style="margin:3px 0px;">Available Rooms:</p>
 		<hr class="fadeout">
         <ul id='roomsList'>
-			          <li id='DefaultLobby' class='inline room selectedRoom' onclick='selectRoom(this)'>DefaultLobby</li><br>
-            <li id='Automations' class='inline room unselectedRoom' onclick='selectRoom(this)'>Automations</li><br>
-            <li id='Java' class='inline room unselectedRoom' onclick='selectRoom(this)'>Java</li><br>
-            <li id='TV' class='inline room unselectedRoom' onclick='selectRoom(this)'>TV</li><br>
-            <li id='Rick and Morty' class='inline room unselectedRoom' onclick='selectRoom(this)'>Rick and Morty</li><br>
-            <li id='Misc' class='inline room unselectedRoom' onclick='selectRoom(this)'>Misc</li><br>
+			<li id='DefaultLobby' class='inline room selectedRoom' onclick='selectRoom(this)'>DefaultLobby</li>
+			<span id="trash:DefaultLobby" class="icon octicon octicon-trashcan right large pointer block gray" onclick='removeRoom(this)' ></span><br id="br:DefaultLobby">
+            <li id='Automations' class='inline room unselectedRoom' onclick='selectRoom(this)'>Automations</li>
+            <span id="trash:Automations" class="icon octicon octicon-trashcan right large pointer block gray" onclick='removeRoom(this)' ></span><br id="br:Automations">
+			<li id='Java' class='inline room unselectedRoom' onclick='selectRoom(this)'>Java</li>
+            <span id="trash:Java" class="icon octicon octicon-trashcan right large pointer block gray" onclick='removeRoom(this)' ></span><br id="br:Java"> 
+			<li id='TV' class='inline room unselectedRoom' onclick='selectRoom(this)'>TV</li>
+            <span id="trash:TV" class="icon octicon octicon-trashcan right large pointer block gray" onclick='removeRoom(this)' ></span><br id="br:TV">
+			<li id='Rick and Morty' class='inline room unselectedRoom' onclick='selectRoom(this)'>Rick and Morty</li>
+            <span id="trash:Rick and Morty" class="icon octicon octicon-trashcan right large pointer block gray" onclick='removeRoom(this)' ></span><br id="br:Rick and Morty">
+			<li id='Misc' class='inline room unselectedRoom' onclick='selectRoom(this)'>Misc</li>
+			<span id="trash:Misc" class="icon octicon octicon-trashcan right large pointer block gray" onclick='removeRoom(this)' ></span><br id="br:Misc">
         </ul>
     </div>
 </div>
@@ -704,6 +710,37 @@ function selectRoom(element) {
 	usernames = socket.emit('request join room', selectedRoom);
 }
 
+//Removes room from the list of Available Rooms
+function removeRoom(element){
+
+	//Parse the room name out of the trash can span element.
+	var elementParts = element.id.split(':');
+	var elementName = elementParts[1];
+	
+	//Do not allow user to delete selected room.
+	if(elementName == selectedRoom)
+		return;
+		
+	//Find the room list item and the br list item.
+	var listItem = document.getElementById(elementName);
+	var brItem = document.getElementById("br:" + elementName);
+	
+	//Remove the trash can span, room list item, and br item associated with that room.
+	element.parentNode.removeChild(element);
+	listItem.parentNode.removeChild(listItem);
+	brItem.parentNode.removeChild(brItem);
+	
+	//Delete the room from the rooms array.
+	for (i = 0; i < roomsArray.length; i++) {
+
+		if(roomsArray[i] == elementName){
+			delete roomsArray[i];
+			return;
+		}
+	
+	}	
+}
+
 function alphanumericUnderDash(string) {
   // leave only alphanumeric, dashes, underscores
   string = string.replace(/[^a-zA-Z0-9-_]/g,"");
@@ -796,7 +833,8 @@ function checkEnterRoom(e){
 }
 
 function addRoomToList(newRoomString) {
-  roomsList.innerHTML = roomsList.innerHTML + "<li id='" + newRoomString + "' class='inline room unselectedRoom' onclick='selectRoom(this)'>" + newRoomString + "</li><br>";
+  roomsList.innerHTML = roomsList.innerHTML + "<li id='" + newRoomString + "' class='inline room unselectedRoom' onclick='selectRoom(this)'>" + newRoomString + "</li>" +
+			"<span id='trash:" + newRoomString + "' class='icon octicon octicon-trashcan right large pointer block gray' onclick='removeRoom(this)' ></span><br id='br:" + newRoomString + "'>";
   return document.getElementById(newRoomString);
 }
 
@@ -923,12 +961,6 @@ socket.on('request username', function(msg) {
 		}
 		
 		bucket.dance();
-	});
-	
-	
-	socket.on('play video', function(link) {
-	  expandBucket("320px","180px");
-		iFrame.src=link;
 	});
 	
 	socket.on('changed name', function(joinObj){
