@@ -10,320 +10,7 @@
 <title>chatHub</title>
 <link rel="icon" type="image/png" href="/chatHubIcon.png" />
 <link rel="stylesheet" href="./octicons/octicons.css">
-<style>
-html,body {
-    height:100%;
-    margin:0px;
-    min-width:750px;
-    min-height:300px;
-    font-size:100%;
-    font-family:"arial";
-    background-color:#eee;
-    color:#111;
-    overflow-y:none;
-}
-div {
-	overflow:none;
-}
-div.card {
-  background-color:#fff;
-  padding: 3px 3px;
-  border-style: solid;
-  border-radius: 3px;
-  border-width: 1px;
-  border-color: #bbb;
-  -webkit-box-shadow: 3px 3px 6px -3px #999;
-  -moz-box-shadow: 3px 3px 6px -3px #999;
-  box-shadow: 3px 3px 6px -3px #999;
-  /* h-shadow v-shadow blur spread color */
-}
-div.terminalCard {
-	background-color:#111;
-	color:#eee;
-	border:4px solid #eee;
-}
-#roomMembersDiv {
-	height:auto;
-	overflow:none;
-}
-input , textarea {
-  border:1px solid #bbb;
-}
-.column {
-    float:left;
-    margin:0px;
-    border:0px;
-    padding:0px;
-    height:100%;
-}
-#leftColumn {
-    width:calc(100% - 250px);
-    overflow-y:none;
-}
-.column div {
-    margin:6px;
-    padding:6px;
-}
-::-webkit-scrollbar {
-    display: none;
-}
-#chatBoxDiv {
-    height:calc(100% - 114px);
-    overflow-y:auto;
-}
-#chatBoxDiv p.messageP {
-    margin:0px;
-    border:0px;
-    padding:0px;
-    margin-bottom:5px;
-}
-.messageInfoSpan {
-    color:gray;
-    width:500px;
-}
-#messageTextarea {
-    width:calc(100% - 6px);
-    margin:0px;
-    resize:none;
-    font-family:arial;
-}
-#popupBackgroundDiv{
-    display:none;
-    z-index:500;
-    height:100%;
-    width:100%;
-    position:absolute;
-    background-color:#000;
-    opacity:.5;    /*opacity:1; is no seethru*/
-}
-#popupSettingsDiv {
-    display:none;
-    padding: 20px;
-    position:absolute;
-    background-color:white;
-    z-index:600;
-    height:70%;
-    width:45%;
-    min-height:250px;
-    overflow-y:auto;
-    max-width:350px;
-    max-height:400px;
-}
-#rightColumn {
-    width:250px;
-    overflow-y:none;
-}
-#rightColumn div {
-    margin-left:0px;
-}
-#roomMembersUL,#roomsList {
-    margin: 6px 0px 0px 12px;
-    border:0px;
-    padding:0px;
-    overflow-y:scroll;
-		height:140px;
-}
-#roomMembersUL {
-	
-}
-#roomsList {
-	
-}
-#roomSearchInput {
-    width:calc(100% - 4px);
-}
-
-.pointer { cursor:pointer; }
-.center {text-align:center;}
-.large {font-size:115%;}
-.bold {font-weight:bold;}
-.Absolute-Center {
-    margin: auto;
-    position: absolute;
-    top: 0; left: 0; bottom: 0; right: 0;
-}
-h1 , h2 , h3 , h4 {
-    padding:0px;
-    margin:0px;
-}
-li {
-  list-style-type:none;
-}
-li.room {
-  padding:2px 6px;
-  border-radius:5px;
-  transition: background-color .5s;
-  line-height:140%;
-}
-li.unselectedRoom {
-  cursor:pointer;
-}
-li.unselectedRoom:hover {
-  background-color:#f2f2f2;
-}
-li.selectedRoom {
-  background-color:#3399ff;
-  color:#ffffff;
-  cursor:default;
-}
-.chatBoxNotification {
-   color:#666;
-   text-align: center;
-   font-size:75%;
-   margin:0px;
-}
-.inline { display:inline; }
-.right { float:right; }
-.large { font-size:115%; }
-.larger { font-size:130%; }
-.largest { font-size:145%; }
-.small { font-size:85%; }
-.smaller { font-size:70%; }
-.smallest { font-size:65%; }
-.red { font-color:#600; }
-.block { display:block; }
-.gray { color:#888; }
-.black { color:#000; }
-hr.fadeout {
-    margin-top:5px;
-    margin-bottom:5px;
-    border: 0;
-    height: 1px;
-    background-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0));
-    background-image: -moz-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0));
-    background-image: -ms-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0));
-    background-image: -o-linear-gradient(left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0));
-}
-#bucketSpan {
-  position:absolute;
-  top:13px;
-  right:263px;
-}
-#bucketXSpan {
-  position:absolute;
-  top:13px;
-  right:263px;
-  color:red;
-  display:none;
-}
-#bucketNextSpan {
-  position:absolute;
-  top:40px;
-  right:263px;
-  color:#BDBDBD;
-  display:none;
-}
-#bucketPlusSpan {
-  position:absolute;
-  top:67px;
-  right:263px;
-  color:black;
-  display:none;
-}
-#bucketMinusSpan {
-  position:absolute;
-  top:94px;
-  right:263px;
-  color:black;
-  display:none;
-}
-#iFrame {
-  position:absolute;
-  top:13px;
-  right:285px;
-  height:0px;
-  width:0px;
-  transition: width .8s, height .8s;
-  display:block;
-}
-@-webkit-keyframes dance {
-  0% {
-    transform:rotate(0deg);
-    -ms-transform:rotate(0deg);
-    -webkit-transform:rotate(0deg);
-  }
-  20% {
-    transform:rotate(0deg);
-    -ms-transform:rotate(0deg);
-    -webkit-transform:rotate(0deg);
-  }
-  30% {
-    transform:rotate(30deg);
-    -ms-transform:rotate(30deg);
-    -webkit-transform:rotate(30deg);
-  }
-  70% {
-    transform:rotate(-30deg);
-    -ms-transform:rotate(-30deg);
-    -webkit-transform:rotate(-30deg);
-  }
-  80% {
-    transform:rotate(0deg);
-    -ms-transform:rotate(0deg);
-    -webkit-transform:rotate(0deg);
-  }
-  100% {
-    transform:rotate(0deg);
-    -ms-transform:rotate(0deg);
-    -webkit-transform:rotate(0deg);
-  }
-}
-.dance {
-    /* Chrome, Safari, Opera */
-    -webkit-animation-name: dance;
-    -webkit-animation-duration: 1.5s;
-    -webkit-animation-timing-function: linear;
-    -webkit-animation-delay: 0s;
-    -webkit-animation-iteration-count: infinite;
-    -webkit-animation-direction: alternate;
-    -webkit-animation-play-state: running;
-    /* Standard syntax */
-    animation-name: dance;
-    animation-duration: 1s;
-    animation-timing-function: linear;
-    animation-delay: 0s;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
-    animation-play-state: running;
-}
-#bucketInput {
-  //position:absolute;
-  top:12px;
-  right:285px;
-  width:0px;
-  float:right;
-  transition: width 1.5s;
-  z-index:200px;
-  border-width:0px
-}
-#bucketInputDiv {
-  position:absolute;
-  top:10px;
-  right:285px;
-  width:400px;
-}
-#bucketInputXSpan {
-  color:red;
-  padding:2px;
-  display:inline;
-  opacity:0.1;
-  transition: opacity 1.5s;
-}
-#bucketInputSendSpan {
-  color:#00FF00;
-  padding:2px;
-  display:inline;
-  opacity:0.1;
-  transition: opacity 1.5s;
-}
-.icon:hover {
-	text-shadow: 0px 0px 15px #3399ff;
-	/*text-shadow: h-shadow v-shadow blur color|none|initial|inherit;*/
-}
-#roomsListDiv {
-	height:auto;
-}
-</style>
+<link rel="stylesheet" type="text/css" href="./style.css">
 </head>
 
 <body id='myBody' onload="main()">
@@ -423,7 +110,7 @@ hr.fadeout {
             <li id='Automations' class='inline room unselectedRoom' onclick='selectRoom(this)'>Automations</li>
             <span id="trash:Automations" class="icon octicon octicon-trashcan right large pointer block gray" onclick='removeRoom(this)' ></span><br id="br:Automations">
 			<li id='Java' class='inline room unselectedRoom' onclick='selectRoom(this)'>Java</li>
-            <span id="trash:Java" class="icon octicon octicon-trashcan right large pointer block gray" onclick='removeRoom(this)' ></span><br id="br:Java"> 
+            <span id="trash:Java" class="icon octicon octicon-trashcan right large pointer block gray" onclick='removeRoom(this)' ></span><br id="br:Java">
 			<li id='TV' class='inline room unselectedRoom' onclick='selectRoom(this)'>TV</li>
             <span id="trash:TV" class="icon octicon octicon-trashcan right large pointer block gray" onclick='removeRoom(this)' ></span><br id="br:TV">
 			<li id='Rick and Morty' class='inline room unselectedRoom' onclick='selectRoom(this)'>Rick and Morty</li>
@@ -435,8 +122,6 @@ hr.fadeout {
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
-<!--<script src="http://code.jquery.com/jquery-1.11.1.js"></script>-->
-<script src="/functions.js"></script>
 <script>
 
 socket = io();
@@ -446,203 +131,24 @@ isBlurred = false;
 isShowingBucketInput = false;
 numberOfMissedMessages = 0;
 roomsArray = [ "DefaultLobby", "Automations", "Java", "TV", "Rick and Morty", "Misc" ];
-bucketArray = [];
 setVideoResolutions = [ {width:"320px", height:"180px" }, {width:"640px", height:"360px" }, {width:"853px", height:"480px" }, {width:"1280px", height:"720px" }];
 videoResolutionsPointer = 0;
-bucket = {
-	contentsArray:[],
-	dance:function() { bucketSpan.className = "icon octicon octicon-paintcan right larger pointer block black dance"; this.isDancing=true; },
-	calm:function() { bucketSpan.className = "icon octicon octicon-paintcan right larger pointer block gray"; this.isDancing=false; },
-	isDancing:false,
-	isExpanded:false,
-	send: function(link){
-	
-		if(isShowingBucketInput){
-			bucket.collapseInput();
-			isShowingBucketInput = false;
-		}
-		socket.emit('send bucket', link );
-	},
-	showInput: function() {
-	  // show input box
-	  
-	  if(isShowingBucketInput || this.isExpanded)
-		return;
-		
-	  isShowingBucketInput = true;
-	  
-	  bucketInput.style.width = "200px";
-	  bucketInput.style.borderWidth="1px";
-	  bucketInputSendSpan.style.opacity=1;
-	  bucketInputXSpan.style.opacity=1;
-	  
-	},
-	collapseInput: function() {
-	  // hide input box
-	  
-	  if(!isShowingBucketInput)
-		return;
-		
-	  isShowingBucketInput = false;
-	  
-	  bucketInput.style.width = "0px";
-	  bucketInputXSpan.style.opacity=0.1;
-	  setTimeout(function(){bucketInput.blur();},1500);
-	  setTimeout(function(){bucketInput.style.borderWidth="0px";}, 1550);
-	  bucketInputSendSpan.style.opacity=0.1;
-	},
-	open: function() {
-		if(!this.isDancing)
-			return;
-			
-		bucketInputSendSpan.style.display="none";
-		bucketInputXSpan.style.display="none";
-		bucketInput.style.display="none";
-		this.collapseInput();
-		isShowingBucketInput = false;
-		bucket.isExpanded = true;
-		
-		var item = this.contentsArray.shift();
-			
-		bucketSpan.style.display = "none";
-		bucketXSpan.style.display = "inline";
-		bucketNextSpan.style.display = "inline";
-		bucketPlusSpan.style.display = "inline";
-		bucketMinusSpan.style.display = "inline";
-		
-		if(this.contentsArray.length > 0)
-			bucketNextSpan.style.color = "#00FF00";
-			
-		if(item.type == "youtube"){
-			iFrame.src = item.src;
-			setTimeout(function(){iFrame.style.width = setVideoResolutions[videoResolutionsPointer].width;},100);
-			setTimeout(function(){iFrame.style.height = setVideoResolutions[videoResolutionsPointer].height;},100);
-		}
-		
-		else if (item.type == "imgur"){
-			var tempImg = new Image();
-			tempImg.src = item.src;
-			iFrame.src = item.src;
-			
-			//var ratio = tempImg.height / setVideoResolutions[videoResolutionsPointer].height;
-			//var width = tempImg.width * ratio;
-			
-			setTimeout(function(){iFrame.style.width = tempImg.width*.5+"px";},100);
-			setTimeout(function(){iFrame.style.height = tempImg.height*.5+"px";},100);
-		}
-	},
-	expand: function() {
-	
-		if(videoResolutionsPointer + 1 == setVideoResolutions.length)
-			return;
-		var size = setVideoResolutions[++videoResolutionsPointer];
-		setTimeout(function(){iFrame.style.width = size.width},100);
-		setTimeout(function(){iFrame.style.height = size.height;},100);
-		
-	},
-	contract: function() {
-	
-		if(videoResolutionsPointer - 1 < 0)
-			return;
-		var size = setVideoResolutions[--videoResolutionsPointer];
-		setTimeout(function(){iFrame.style.width = size.width;},100);
-		setTimeout(function(){iFrame.style.height = size.height;},100);
-	},
-	next: function() {
-	
-		if(this.contentsArray.length == 0) {
-			return;
-		}
-	
-		var item = this.contentsArray.shift();
-		
-		if(this.contentsArray.length == 0) {
-			bucketNextSpan.style.color = "#BDBDBD";
-		}
-		
-		if(item.type == "youtube"){
-				var size = setVideoResolutions[videoResolutionsPointer];
-				setTimeout(function(){iFrame.style.width = "0px";},100);
-				setTimeout(function(){iFrame.style.height = "0px";},100);
-				setTimeout(function(){iFrame.src = item.src;},1000);
-				setTimeout(function(){iFrame.style.width = size.width;},1000);
-				setTimeout(function(){iFrame.style.height = size.height;},1000);
-				
-			}
-			
-		else if (item.type == "imgur"){
-			var tempImg = new Image();
-			tempImg.src = item.src;
-			setTimeout(function(){iFrame.style.width = "0px";},100);
-			setTimeout(function(){iFrame.style.height = "0px";},100);
-			setTimeout(function(){iFrame.src = item.src;},1000);
-			setTimeout(function(){iFrame.style.width = tempImg.width+"px";},1000);
-			setTimeout(function(){iFrame.style.height = tempImg.height+"px";},1000);
-			
-		}
-	},
-	close: function() {
-		iFrame.style.width = "0px";
-		iFrame.style.height = "0px";
-		bucketXSpan.style.display = "none";
-		bucketNextSpan.style.display = "none";
-		bucketPlusSpan.style.display = "none";
-		bucketMinusSpan.style.display = "none";
-		bucketSpan.style.display = "inline";
-		bucket.isExpanded = false;
-		
-		bucketInputSendSpan.style.display="inline";
-		bucketInputXSpan.style.display="inline";
-		bucketInput.style.display="inline";
-		
-		if(this.contentsArray.length == 0)
-			this.calm();
-		else
-			this.dance();
-	}
-};
 
-function initiateGlobals() {
-    usernameInput = document.getElementById("usernameInput");
-    myUsername = usernameInput.value;
-	messageTextarea = document.getElementById("messageTextarea");
-	chatBoxDiv = document.getElementById("chatBoxDiv");
-	myRoom = "default room set globally";
-	fontSelect = document.getElementById('fontSelect');
-	colorSelect = document.getElementById('colorSelect');
-	myFont = fontSelect.value;
-	myColor = fontSelect.value;
-	previousMessage = "";
-	previousUsername = usernameInput.value;
-	isNewToRoom = true;
-	popupBackgroundDiv = document.getElementById('popupBackgroundDiv');
-	popupSettingsDiv = document.getElementById('popupSettingsDiv');
-	defaultRoomInput = document.getElementById('defaultRoomInput');
-	defaultRoomSelect = document.getElementById('defaultRoomSelect');
-	roomMembersDiv = document.getElementById('roomMembersDiv');
-	themeSelect = document.getElementById('themeSelect');
-	incomingColorsCheck = document.getElementById('incomingColorsCheck');
-	incomingFontCheck = document.getElementById('incomingFontCheck');
-	roomSearchInput = document.getElementById('roomSearchInput');
-	roomsList = document.getElementById('roomsList');
-  	iFrame = document.getElementById('iFrame');
-	bucketSpan = document.getElementById('bucketSpan');
-	bucketXSpan = document.getElementById('bucketXSpan');
-	bucketNextSpan = document.getElementById('bucketNextSpan');
-	bucketInput = document.getElementById('bucketInput');
-	bucketInputDiv = document.getElementById('bucketInputDiv');
-	bucketInputSendSpan = document.getElementById('bucketInputSendSpan');
-	bucketInputXSpan = document.getElementById('bucketInputXSpan');
-	persistentUsernameCheck = document.getElementById('persistentUsernameCheck');
-	popupBackgroundDiv = document.getElementById('popupBackgroundDiv');
-	popupSettingsDiv = document.getElementById('popupSettingsDiv');
-	cardElements = document.getElementsByClassName('card');
-	settingsIcon = document.getElementById('settingsIcon');
-	iconElements = document.getElementsByClassName('icon');
-	myBody = document.getElementById('myBody');
-	window.onfocus = onFocus;
-	window.onblur = onBlur;
-}
+</script>
+
+<!-- load in massive bucket object -->
+<script src="./bucket.js"></script>
+
+<!-- initialize global vars -->
+<script src="./initialize.js"></script>
+
+<!-- go get some functions -->
+<script src="./settings.js"></script>
+<script src="./username.js"></script>
+<script src="./rooms.js"></script>
+<script src="./client.js"></script>
+
+<script>
 
 function main() {
 	initiateGlobals();
@@ -652,11 +158,9 @@ function main() {
     console.log('loading localStorage settings into settingsObj...');
     configureSettings();
   } else {
-
     console.log('no localStorage settings found, intializing settingsObj');
     settingsObj = {};
   }
-
   console.log("settings loaded:");
   console.log(settingsObj);
 	// check for username from last time
@@ -681,66 +185,6 @@ function onFocus() {
 	title[0].innerHTML = "chatHub";
 };
 
-function displaySettings() {
-  popupBackgroundDiv.style.display = "block";
-  popupSettingsDiv.style.display = "block";
-  }
-  
-function selectRoom(element) {
-
-	if(selectedRoom == element.innerHTML)
-		return;
-		
-	//closeBucket();
-	bucketArray = [];
-	bucket.close();
-	bucket.calm();
-	
-	var last = document.getElementById(selectedRoom);
-	last.className = "inline room unselectedRoom";
-	
-	socket.emit('left room');
-	chatBoxDiv.innerHTML += "<hr class='fadeout'>";
-	
-	element.className = "inline room selectedRoom";
-	selectedRoom = element.innerHTML;
-
-	roomMembersUL.innerHTML = ""
-	
-	usernames = socket.emit('request join room', selectedRoom);
-}
-
-//Removes room from the list of Available Rooms
-function removeRoom(element){
-
-	//Parse the room name out of the trash can span element.
-	var elementParts = element.id.split(':');
-	var elementName = elementParts[1];
-	
-	//Do not allow user to delete selected room.
-	if(elementName == selectedRoom)
-		return;
-		
-	//Find the room list item and the br list item.
-	var listItem = document.getElementById(elementName);
-	var brItem = document.getElementById("br:" + elementName);
-	
-	//Remove the trash can span, room list item, and br item associated with that room.
-	element.parentNode.removeChild(element);
-	listItem.parentNode.removeChild(listItem);
-	brItem.parentNode.removeChild(brItem);
-	
-	//Delete the room from the rooms array.
-	for (i = 0; i < roomsArray.length; i++) {
-
-		if(roomsArray[i] == elementName){
-			delete roomsArray[i];
-			return;
-		}
-	
-	}	
-}
-
 function alphanumericUnderDash(string) {
   // leave only alphanumeric, dashes, underscores
   string = string.replace(/[^a-zA-Z0-9-_]/g,"");
@@ -758,41 +202,6 @@ function closePopups() {
   popupSettingsDiv.style.display = "none";
 }
 
-function saveSettings() {
-  // save all settings to settingsObj
-  settingsObj.theme = themeSelect.value;
-  settingsObj.ignoreColors = incomingColorsCheck.checked;
-  settingsObj.ignoreFont = incomingFontCheck.checked;
-  settingsObj.videoResSelect = videoResSelect.value;
-  settingsObj.username = alphanumericUnderDash(usernameInput.value);
-  settingsObj.persistentUsername = persistentUsernameCheck.checked;
-  // settingsObj.lastRoom = selectedRoom;
-  settingsObj.font = fontSelect.value;
-  settingsObj.color = colorSelect.value;
-  settingsObj.defaultRoom = defaultRoomSelect.value;
-  localStorage.settingsJSON = JSON.stringify(settingsObj);
-  console.log('saving settings to localStorage and JSON string: ' + localStorage.settingsJSON);
-}
-
-function configureSettings() {
-  // set the settings saved from settingsObj obj
-  themeSelect.value = settingsObj.theme;
-  incomingColorsCheck.checked = settingsObj.ignoreColors;
-  incomingFontCheck.checked = settingsObj.ignoreFont;
-  videoResSelect.value = settingsObj.videoResSelect;
-  usernameInput.value = settingsObj.username;
-  persistentUsernameCheck.checked = settingsObj.persistentUsername;
-  defaultRoomSelect.value = settingsObj.defaultRoom;
-  // selectedRoom = settingsObj.lastRoom;
-  // if (selectedRoom != "DefaultLobby") {
-  //   roomsArray.push(selectedRoom);
-  //   selectedRoomElement = addRoomToList(selectedRoom);
-  //   selectRoom(selectedRoomElement);
-  // }
-  fontSelect.value = settingsObj.font;
-  colorSelect.value = settingsObj.color;
-}
-
 function checkEnterButton(e) {
 
     var key = e.keyCode ? e.keyCode : e.which;
@@ -801,41 +210,6 @@ function checkEnterButton(e) {
         sendMessage();
         e.preventDefault();
     }
-}
-
-function checkEnterRoom(e){
-	
-	var key = e.keyCode ? e.keyCode : e.which;
-	
-	if(key == 13) {
-		var newRoomString = alphanumericUnderDashSpace(roomSearchInput.value);
-		
-		roomSearchInput.blur();
-		
-		
-		if(roomsArray.indexOf(newRoomString) > -1){
-		
-			var room = document.getElementById(newRoomString);
-			selectRoom(room);
-			roomSearchInput.value = "";
-			messageTextarea.focus();
-			return;
-		
-		}
-		
-		roomsArray.push(newRoomString);
-		
-		var room = addRoomToList(newRoomString);
-		selectRoom(room);
-		roomSearchInput.value = "";
-		messageTextarea.focus();
-	}
-}
-
-function addRoomToList(newRoomString) {
-  roomsList.innerHTML = roomsList.innerHTML + "<li id='" + newRoomString + "' class='inline room unselectedRoom' onclick='selectRoom(this)'>" + newRoomString + "</li>" +
-			"<span id='trash:" + newRoomString + "' class='icon octicon octicon-trashcan right large pointer block gray' onclick='removeRoom(this)' ></span><br id='br:" + newRoomString + "'>";
-  return document.getElementById(newRoomString);
 }
 
 function buildMessageObject() {
@@ -849,16 +223,6 @@ function buildMessageObject() {
     console.log("sending message:");
     console.log(messageObj);
     return messageObj;
-}
-
-function fontColorChange() {
-    myColor = colorSelect.value;
-    messageTextarea.style.color = myColor;
-}
-
-function fontFamilyChange() {
-    myFont = fontSelect.value;
-    messageTextarea.style.fontFamily = myFont;
 }
 
 function nameOnBlur() {
@@ -877,121 +241,13 @@ function sendMessage() {
   if (messageTextarea.value === "" ) {
     messageTextarea.focus();
     return false;
-}
+	}
 		
 	var messageObj = buildMessageObject();
 	socket.emit('chat message', messageObj);
 	messageTextarea.value = "";
 	messageTextarea.focus();
 }
-
-	socket.on('chat message', function(messageObj) {
-	    console.log("message received:");
-	    console.log(messageObj);
-		
-	// display missed messages notification in tab
-	if(isBlurred){
-		numberOfMissedMessages++;
-		var title = document.getElementsByTagName("title");
-		title[0].innerHTML = "(" + numberOfMissedMessages + ") chatHub";
-	}
-	
-	console.log('message contents: ' + messageObj.contents);
-	var urlRegExp = /^(?:(?:ht|f)tp(?:s?)\:\/\/|~\/|\/)?(?:\w+:\w+@)?((?:(?:[-\w\d{1-3}]+\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|edu|co\.uk|ac\.uk|it|fr|tv|museum|asia|local|travel|[a-z]{2}))|((\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)(\.(\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)){3}))(?::[\d]{1,5})?(?:(?:(?:\/(?:[-\w~!$+|.,=]|%[a-f\d]{2})+)+|\/)+|\?|#)?(?:(?:\?(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)(?:&(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)*)*(?:#(?:[-\w~!$ |\/.,*:;=]|%[a-f\d]{2})*)?$/igm;
-
-	messageObj.contents = messageObj.contents.replace(urlRegExp,'<a href="http://$1" target="_blank">$1</a>');
-	
-	var messageString = "<p class='messageP' style='color:" + messageObj.color + ";font-family:" + messageObj.font + ";'><span class='messageInfoSpan'>[" + messageObj.username + " " + messageObj.time + "]</span> " + messageObj.contents + "</p>";
-		
-	chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + messageString;
-	chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
-});
-		
-socket.on('request username', function(msg) {
-	socket.emit('receive username', usernameInput.value);
-});
-		
-	socket.on('join room', function(joinObj){
-	
-		console.log("Joining Room: " + selectedRoom);
-	
-		usernames = joinObj.usernames;
-		
-		roomMembersDiv.innerHTML = 'Users in "' + selectedRoom + '"<hr class="fadeout"><ul id="roomMembersUL"></ul>';
-		
-		for(var key in usernames){
-			if(usernames.hasOwnProperty(key)){
-				var listItem = document.getElementById(key);
-		
-				if(listItem == null)
-					roomMembersUL.innerHTML = roomMembersUL.innerHTML + "<li id='" + key + "' class='noBullet'>" + usernames[key]  + "</li>";
-			}
-		}
-		
-		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" +  joinObj.username + " has joined the room.</p>";
-		chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
-	});
-	
-	socket.on('send bucketArray', function(buckets) {
-		console.log("Bucket Array Received: " + buckets);
-		bucket.contentsArray = buckets;
-		bucket.dance();
-		
-	});
-	
-	
-	socket.on('new bucketItem', function(bucketItem) {
-		console.log("Bucket Item Received: " + bucketItem);
-		bucket.contentsArray.push(bucketItem);
-		
-		var bucketTypeString = "an item";
-		
-		if(bucketItem.type == "youtube")
-			bucketTypeString = "a Youtube video";
-		else if(bucketItem.type == "imgur")
-			bucketTypeString = "an Imgur image";
-		
-		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" +  usernames[bucketItem.id] + " has put " + bucketTypeString + " in the bucket.</p>";
-		chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
-		
-		
-		if(bucket.isExpanded){
-			bucketNextSpan.style.color = "#00FF00";
-			return;
-		}
-		
-		bucket.dance();
-	});
-	
-	socket.on('changed name', function(joinObj){
-	
-		console.log("Changing Name: " + joinObj.username);
-	
-		var oldName = usernames[joinObj.id];
-		usernames[joinObj.id] = joinObj.username;
-		
-		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" + oldName + " has changed their name to " + joinObj.username + ".</p>";
-		chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
-		var listItem = document.getElementById(joinObj.id);
-		listItem.innerHTML = joinObj.username;
-
-	});
-	
-	socket.on('disconnected', function(userId){
-		
-		var name = usernames[userId];
-		
-		if(name == null)
-			name = myUsername;
-		else{
-			delete usernames[userId];
-			var node = document.getElementById(userId);
-			node.parentNode.removeChild(node);
-		}
-			
-		chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" + name+ " has left the room.</p>";
-		chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
-	});
 
 function cleanInput(input) {
     input = input.replace(/(<([^>]+)>)/ig,"");
@@ -1028,86 +284,6 @@ function getTime() {
     return hour + ":" + minutes + ampm;
 }
 
-function generateRandUsername() {
-    var adj = generateAdj();
-    var noun = generateNoun();
-    myUsername = adj + noun;
-    return myUsername;
-}
-
-// function setCardsTerminal() {
-// 	var black = "#111";
-// 	var white = "#eee";
-// 	console.log("[LOG] [OPENING $VT_TERM1]...");
-// 	var cardElementsLength = cardElements.length;
-// 	for (var i=0 ; i < cardElementsLength ; i++) {
-// 		cardElements[0].className = 'terminalCard';
-// 	}
-// 	myBody.style.backgroundColor = black;
-// 	myBody.style.fontFamily = "monospace";
-// 	// background-color:#eee;
-// 	var inputElements = document.getElementsByTagName("input");
-// 	var inputElementsLength = inputElements.length;
-// 	for (var i=0 ; i<inputElementsLength ; i++) {
-// 		inputElements[i].style.backgroundColor = black;
-// 		inputElements[i].style.color = white;
-// 		inputElements[i].style.fontFamily = 'monospace';
-// 	}
-// 	messageTextarea.style.backgroundColor = black;
-// 	messageTextarea.style.color = white;
-// 	messageTextarea.style.fontFamily = 'monospace';
-// }
-
-function setUITheme(uiTheme) {
-	if (uiTheme === "Terminal") {
-		var black = "#111";
-		var white = "#eee";
-		console.log("[LOG] [OPENING $VT_TERM1]...");
-		var cardElementsLength = cardElements.length;
-		for (var i=0 ; i < cardElementsLength ; i++) {
-			cardElements[0].className = 'terminalCard';
-		}
-		myBody.style.backgroundColor = black;
-		myBody.style.fontFamily = "monospace";
-		// background-color:#eee;
-		var inputElements = document.getElementsByTagName("input");
-		var inputElementsLength = inputElements.length;
-		for (var i=0 ; i<inputElementsLength ; i++) {
-			inputElements[i].style.backgroundColor = black;
-			inputElements[i].style.color = white;
-			inputElements[i].style.fontFamily = 'monospace';
-		}
-		messageTextarea.style.backgroundColor = black;
-		messageTextarea.style.color = white;
-		messageTextarea.style.fontFamily = 'monospace';
-	}
-	if (uiTheme === "Cards") {
-		var black = "#111";
-		var white = "#eee";
-		console.log("[LOG] [OPENING $VT_TERM1]...");
-		var cardElementsLength = cardElements.length;
-		for (var i=0 ; i < cardElementsLength ; i++) {
-			cardElements[0].className = 'terminalCard';
-		}
-		myBody.style.backgroundColor = black;
-		myBody.style.fontFamily = "monospace";
-		// background-color:#eee;
-		var inputElements = document.getElementsByTagName("input");
-		var inputElementsLength = inputElements.length;
-		for (var i=0 ; i<inputElementsLength ; i++) {
-			inputElements[i].style.backgroundColor = black;
-			inputElements[i].style.color = white;
-			inputElements[i].style.fontFamily = 'monospace';
-		}
-		messageTextarea.style.backgroundColor = black;
-		messageTextarea.style.color = white;
-		messageTextarea.style.fontFamily = 'monospace';
-	}
-}
-
 </script>
-
 </body>
-
 </html>
-

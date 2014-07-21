@@ -13,3 +13,10 @@ function generateAdj() {
 
 return adj;
 }
+
+function generateRandUsername() {
+    var adj = generateAdj();
+    var noun = generateNoun();
+    myUsername = adj + noun;
+    return myUsername;
+}
