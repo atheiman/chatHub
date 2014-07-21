@@ -182,14 +182,24 @@ io.on('connection', function(socket){
 	
 	//Tell all users in the room that a user has gone away.
 	socket.on('is away', function(){
+		
 		usernames = rooms[room];
+		
+		if(usernames == null || usernames[userId] == null)
+			return;
+		
 		usernames[userId].isAway = true;
+		
 		io.to(room).emit('user away', userId );
 	});
 	
 	//Tell all users in the room that a user has returned.
 	socket.on('is back', function(){
 		usernames = rooms[room];
+		
+		if(usernames == null || usernames[userId] == null)
+			return;
+		
 		usernames[userId].isAway = false;
 		io.to(room).emit('user returned', userId );
 	});
