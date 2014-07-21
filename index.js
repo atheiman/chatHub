@@ -38,6 +38,7 @@ io.on('connection', function(socket){
 		
 	socket.emit('request username', "");
 	
+	//Get the username from the newly connected client.
 	socket.on('receive username', function(username){
 	
 		socket.username = username;
@@ -57,6 +58,7 @@ io.on('connection', function(socket){
 		socket.broadcast.to(room).emit('user joined', { id:userId, username:socket.username, isAway:usernames[userId].isAway });
 	});
 
+	//Update with new username, and tell other clients the users new username.
 	socket.on('username changed', function(username){
 		console.log(socket.username + " is changing names. ID: " + userId);
 		socket.username = username;
@@ -68,6 +70,7 @@ io.on('connection', function(socket){
 		io.to(room).emit('changed name', { id:userId, username:socket.username });
 	});
 	
+	//Send chat message to everyone in the room.
 	socket.on('chat message', function(messageObj){
 		console.log('message: ' + messageObj);
 		
@@ -77,6 +80,8 @@ io.on('connection', function(socket){
 			io.to(room).emit('chat message', messageObj);
 	});
 	
+	//Put client in a new room giving the client the other users in the room and the room's bucket.
+	//Tell other users that a new user has entered the room.
 	socket.on('request join room', function(newRoom){
 	
 		//Tell socket to leave the old room and join the new room.
@@ -119,6 +124,7 @@ io.on('connection', function(socket){
 			
 	});
 	
+	//Clean bucket item to look for a youtube or imgur link.
 	socket.on('send bucket', function(link){
 		console.log("Bucket link received: " + link);
 		console.log(roomBuckets[room]);
@@ -134,6 +140,7 @@ io.on('connection', function(socket){
 		
 	});
 	
+	//Send imgur bucket item to users in the room.
 	function SendImgur(link){
 		var imgurParts = link.split("/");
 		
@@ -155,6 +162,7 @@ io.on('connection', function(socket){
 	
 	}
 	
+	//Send youtube video bucket link to users in the room.
 	function SendYoutubeVideo(link){
 		var youtubeParts = link.split("?v=");
 		
@@ -172,18 +180,21 @@ io.on('connection', function(socket){
 		io.to(room).emit('new bucketItem', bucketItem );
 	}
 	
+	//Tell all users in the room that a user has gone away.
 	socket.on('is away', function(){
 		usernames = rooms[room];
 		usernames[userId].isAway = true;
 		io.to(room).emit('user away', userId );
 	});
 	
+	//Tell all users in the room that a user has returned.
 	socket.on('is back', function(){
 		usernames = rooms[room];
 		usernames[userId].isAway = false;
 		io.to(room).emit('user returned', userId );
 	});
 	
+	//Tell all users in the room that a user has disconnected.
 	socket.on('disconnect', function(){
 		console.log('user disconnected');
 		
@@ -193,6 +204,7 @@ io.on('connection', function(socket){
 		socket.broadcast.to(room).emit('disconnected', userId);
 	});
 	
+	//Tell all users in the room that a user has left the room.
 	socket.on('left room', function(){
 	
 		var usernames = rooms[room];

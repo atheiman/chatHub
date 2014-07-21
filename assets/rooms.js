@@ -1,3 +1,5 @@
+//Selects a room, if the room is not the one the user is currently in
+//then it will notifiy the server that the user wishes to switch rooms.
 function selectRoom(element) {
 
 	if(selectedRoom == element.innerHTML)
@@ -53,6 +55,9 @@ function removeRoom(element){
 	}
 }
 
+//Checks the enter button on the new room input.
+//This will trigger the creation and entering of a new room.
+//This room will be added to the list of available rooms. 
 function checkEnterRoom(e){
 	
 	var key = e.keyCode ? e.keyCode : e.which;

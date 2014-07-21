@@ -151,6 +151,7 @@ videoResolutionsPointer = 0;
 
 <script>
 
+//Initializes globals as well as load some local settings.
 function main() {
 	initiateGlobals();
   // load settings from localStorage if existing
@@ -175,11 +176,14 @@ function main() {
 	previousUsername = myUsername;
 }
 
+//When the window is blurred, let the server know the user is away.
 function onBlur() {
 	isBlurred = true;
 	socket.emit('is away', '');
 };
 
+//When the window is focused, clear out the title and tell the server
+//that the user is back.
 function onFocus() {
 	isBlurred = false;
 	numberOfMissedMessages = 0;
@@ -205,11 +209,15 @@ function closePopups() {
   popupSettingsDiv.style.display = "none";
 }
 
+//Play the notificationSound when someone mentions the user.
 function notificationSound() {
   notificationSoundSpan.innerHTML= "<embed src='./coin.wav' hidden='true' autostart='true' loop='false' style='position:absolute; top:1px; right:1px; z-index:-500;'>";
   setTimeout(function(){notificationSoundSpan.innerHTML = "";},1500);
 }
 
+//Check if the enter button is pressed on the text area or bucket input
+//If it is pressed on the text area, send a message.
+//If it is pressed on the bucket input, send the bucket item and clear the bucket input.
 function checkEnterButton(e) {
 
     var key = e.keyCode ? e.keyCode : e.which;
@@ -223,6 +231,7 @@ function checkEnterButton(e) {
     }
 }
 
+//Build the message to send to the server.
 function buildMessageObject() {
     var myContents = messageTextarea.value;
     previousMessage = myContents;
@@ -248,6 +257,7 @@ function nameOnBlur() {
 	messageTextarea.focus();
 }
 
+//Send the message to the server.
 function sendMessage() {
   if (messageTextarea.value === "" ) {
     messageTextarea.focus();
@@ -260,6 +270,7 @@ function sendMessage() {
 	messageTextarea.focus();
 }
 
+//Clean inputs to remove HTML avoiding XSS.
 function cleanInput(input) {
     input = input.replace(/(<([^>]+)>)/ig,"");
     input = input.replace(/\n/g,"<br />");
@@ -273,6 +284,7 @@ function fontEffectReplace(input) {
   return input;
 }
 
+//Get the current time in MM:SSam/pm.
 function getTime() {
     var date = new Date();
     var hour = date.getHours();

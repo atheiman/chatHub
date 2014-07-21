@@ -1,3 +1,6 @@
+//Saves locally the user settings such as if the user would like
+//to keep their name on re-entering the site and what theme
+//the user would like to use. 
 function saveSettings() {
   // save all settings to settingsObj
   settingsObj.theme = themeSelect.value;
@@ -15,6 +18,7 @@ function saveSettings() {
   console.log('saving settings to localStorage and JSON string: ' + localStorage.settingsJSON);
 }
 
+//Uses the local settings to affect the site on load up.
 function configureSettings() {
   // set the settings saved from settingsObj obj
   themeSelect.value = settingsObj.theme;
