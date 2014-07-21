@@ -14,6 +14,7 @@ function generateAdj() {
 return adj;
 }
 
+//Generates a random username: AdjectiveNoun.
 function generateRandUsername() {
     var adj = generateAdj();
     var noun = generateNoun();

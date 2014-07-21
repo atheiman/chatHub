@@ -1,3 +1,4 @@
+//Receive a chat message.
 socket.on('chat message', function(messageObj) {
     console.log("message received:");
     console.log(messageObj);
@@ -31,10 +32,12 @@ socket.on('chat message', function(messageObj) {
 	chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 });
 		
+//Request a change in username.		
 socket.on('request username', function(msg) {
 	socket.emit('receive username', usernameInput.value);
 });
 		
+//User has joined the room. Gives the user all the users in the room.
 socket.on('join room', function(joinObj){
 
 	console.log("Joining Room: " + selectedRoom);
@@ -58,13 +61,14 @@ socket.on('join room', function(joinObj){
 	chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 });
 	
+//Receive all bucket items from the room.	
 socket.on('send bucketArray', function(buckets) {
 	console.log("Bucket Array Received: " + buckets);
 	bucket.contentsArray = buckets;
 	bucket.dance();
 });
 	
-	
+//Receive new bucket item.
 socket.on('new bucketItem', function(bucketItem) {
 	console.log("Bucket Item Received: " + bucketItem);
 	bucket.contentsArray.push(bucketItem);
@@ -88,6 +92,7 @@ socket.on('new bucketItem', function(bucketItem) {
 	bucket.dance();
 });
 	
+//Indicates a user in the room has changed their name.
 socket.on('changed name', function(joinObj){
 
 	console.log("Changing Name: " + joinObj.username);
@@ -102,6 +107,7 @@ socket.on('changed name', function(joinObj){
 
 });
 
+//Indicates a new user has joined the room.
 socket.on('user joined', function(userInfo){
 	usernames[userInfo.id] = userInfo.username;
 	roomMembersUL.innerHTML = roomMembersUL.innerHTML + "<li id='" + userInfo.id + "' class='noBullet'><span id='pulse:" + userInfo.id + "'  class='octicon octicon-pulse large inline green' style='padding-right:3px'></span>" + userInfo.username + "</li>";
@@ -114,18 +120,20 @@ socket.on('user joined', function(userInfo){
 	}
 });	
 
-
+//Indicates a user has gone away.
 socket.on('user away', function(userId){
 	var usernameElement = document.getElementById("pulse:" + userId);
 	usernameElement.className = "octicon octicon-pulse large inline orange";
 });	
 
+//Indicates a user has returned.
 socket.on('user returned', function(userId){
 	var usernameElement = document.getElementById("pulse:" + userId);
 	usernameElement.className = "octicon octicon-pulse large inline green";
 	
 });	
 
+//Indicates a user has disconnected.
 socket.on('disconnected', function(userId){
 	
 	var name = usernames[userId];

@@ -1,3 +1,4 @@
+//Initializes all the global html element objects that are often reused.
 function initiateGlobals() {
 	usernameInput = document.getElementById("usernameInput");
 	messageTextarea = document.getElementById("messageTextarea");

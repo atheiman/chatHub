@@ -1,3 +1,7 @@
+//Bucket object. Responsible for opening, closing, expanding, and contracting the bucket.
+//Also responsible for showing and collapse the bucket input box. It will also allow
+//the user to select the next bucket item in the list if there are more than one bucket items
+//in the bucket.
 bucket = {
 	contentsArray:[],
 	dance:function() { bucketSpan.className = "icon octicon octicon-paintcan right larger pointer block black dance"; this.isDancing=true; },
