@@ -2,11 +2,22 @@ socket.on('chat message', function(messageObj) {
     console.log("message received:");
     console.log(messageObj);
 	
+	// Am I mentioned?
+	var mentionedFlag = false;
+	if (messageObj.contents.toLowerCase().indexOf(settingsObj.username.toLowerCase()) > -1) {
+		mentionedFlag = true;
+	}
+	
 	// display missed messages notification in tab
 	if(isBlurred){
 		numberOfMissedMessages++;
 		var title = document.getElementsByTagName("title");
 		title[0].innerHTML = "(" + numberOfMissedMessages + ") chatHub";
+		
+		// If mentioned and away then play notification sound
+		if (mentionedFlag) {
+			notificationSound();
+		}
 	}
 	
 	console.log('message contents: ' + messageObj.contents);

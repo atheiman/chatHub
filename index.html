@@ -15,6 +15,7 @@
 
 <body id='myBody' onload="main()">
 
+<span id="notificationSoundSpan" style="visibility:hidden;"></span>
 <div id='popupBackgroundDiv' onclick='closePopups(); configureSettings();'></div>
 <div id='popupSettingsDiv' class='card' style="margin: auto; position: absolute; top: 0; left: 0; bottom: 0; right: 0;">
     <h2 class='center'>Settings</h2>
@@ -200,6 +201,11 @@ function alphanumericUnderDashSpace(string) {
 function closePopups() {
   popupBackgroundDiv.style.display = "none";
   popupSettingsDiv.style.display = "none";
+}
+
+function notificationSound() {
+  notificationSoundSpan.innerHTML= "<embed src='./beep.mp3' hidden='true' autostart='true' loop='false' style='position:absolute; top:1px; right:1px; z-index:-500;'>";
+  setTimeout(function(){notificationSoundSpan.innerHTML = "";},1500);
 }
 
 function checkEnterButton(e) {

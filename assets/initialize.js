@@ -29,6 +29,7 @@ function initiateGlobals() {
 	settingsIcon = document.getElementById('settingsIcon');
 	iconElements = document.getElementsByClassName('icon');
 	myBody = document.getElementById('myBody');
+	notificationSoundSpan = document.getElementById("notificationSoundSpan");
 	myUsername = usernameInput.value;
 	myFont = fontSelect.value;
 	myColor = fontSelect.value;
