@@ -170,6 +170,8 @@ li.selectedRoom {
 .block { display:block; }
 .gray { color:#888; }
 .black { color:#000; }
+.green { color:#00FF00; }
+.orange { color:#E89619; }
 hr.fadeout {
     margin-top:5px;
     margin-bottom:5px;

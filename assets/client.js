@@ -38,21 +38,23 @@ socket.on('request username', function(msg) {
 socket.on('join room', function(joinObj){
 
 	console.log("Joining Room: " + selectedRoom);
-
-	usernames = joinObj.usernames;
 	
 	roomMembersDiv.innerHTML = 'Users in "' + selectedRoom + '"<hr class="fadeout"><ul id="roomMembersUL"></ul>';
 	
-	for(var key in usernames){
-		if(usernames.hasOwnProperty(key)){
-			var listItem = document.getElementById(key);
-	
-			if(listItem == null)
-				roomMembersUL.innerHTML = roomMembersUL.innerHTML + "<li id='" + key + "' class='noBullet'>" + usernames[key]  + "</li>";
+	for(var key in joinObj.usernames){
+		if(joinObj.usernames.hasOwnProperty(key)){
+		
+				usernames[key] = joinObj.usernames[key].username;
+				roomMembersUL.innerHTML = roomMembersUL.innerHTML + "<li id='" + key + "' class='noBullet'><span id='pulse:" + key + "'  class='octicon octicon-pulse large inline green' style='padding-right:3px'></span>" + joinObj.usernames[key].username  + "</li>";
+		
+				if(joinObj.usernames[key].isAway){
+					var usernameElement = document.getElementById("pulse:" + key);
+					usernameElement.className = "octicon octicon-pulse large inline orange";
+				}
 		}
 	}
-		
-	chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" +  joinObj.username + " has joined the room.</p>";
+	
+	chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" +  "You have joined " + selectedRoom + ".</p>";
 	chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 });
 	
@@ -96,10 +98,34 @@ socket.on('changed name', function(joinObj){
 	chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" + oldName + " has changed their name to " + joinObj.username + ".</p>";
 	chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 	var listItem = document.getElementById(joinObj.id);
-	listItem.innerHTML = joinObj.username;
+	listItem.innerHTML = "<span id='pulse:" + joinObj.id + "'  class='octicon octicon-pulse large inline green' style='padding-right:3px'></span>" + joinObj.username;
 
 });
+
+socket.on('user joined', function(userInfo){
+	usernames[userInfo.id] = userInfo.username;
+	roomMembersUL.innerHTML = roomMembersUL.innerHTML + "<li id='" + userInfo.id + "' class='noBullet'><span id='pulse:" + userInfo.id + "'  class='octicon octicon-pulse large inline green' style='padding-right:3px'></span>" + userInfo.username + "</li>";
+	chatBoxDiv.innerHTML = chatBoxDiv.innerHTML + "<p class='chatBoxNotification'>" +  userInfo.username + " has joined the room.</p>";
+	chatBoxDiv.scrollTop = chatBoxDiv.scrollHeight;
 	
+	if(userInfo.isAway){
+		var usernameElement = document.getElementById("pulse:" + userId);
+		usernameElement.className = "octicon octicon-pulse large inline orange";
+	}
+});	
+
+
+socket.on('user away', function(userId){
+	var usernameElement = document.getElementById("pulse:" + userId);
+	usernameElement.className = "octicon octicon-pulse large inline orange";
+});	
+
+socket.on('user returned', function(userId){
+	var usernameElement = document.getElementById("pulse:" + userId);
+	usernameElement.className = "octicon octicon-pulse large inline green";
+	
+});	
+
 socket.on('disconnected', function(userId){
 	
 	var name = usernames[userId];

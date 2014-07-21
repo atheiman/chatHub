@@ -56,7 +56,7 @@
 <span id="bucketMinusSpan" class="icon octicon octicon-dash right larger pointer" onclick="bucket.contract()"></span>
 <div id="bucketInputDiv">
 	<span id="bucketInputSendSpan" class="icon octicon octicon-check right larger pointer" onclick="bucket.send(bucketInput.value)" onmouseover="bucket.showInput();"></span>
-	<input id="bucketInput" type="text" placeholder='Paste a bucket item...'>
+	<input id="bucketInput" type="text" onkeypress="checkEnterButton(event)" placeholder='Paste a bucket item...'>
 	<span id="bucketInputXSpan" class="icon octicon octicon-x right larger pointer" onclick="bucket.collapseInput()" onmouseover="bucket.showInput();"></span>
 </div>
 
@@ -177,6 +177,7 @@ function main() {
 
 function onBlur() {
 	isBlurred = true;
+	socket.emit('is away', '');
 };
 
 function onFocus() {
@@ -184,6 +185,7 @@ function onFocus() {
 	numberOfMissedMessages = 0;
 	var title = document.getElementsByTagName("title");
 	title[0].innerHTML = "chatHub";
+	socket.emit('is back', '');
 };
 
 function alphanumericUnderDash(string) {
@@ -204,7 +206,7 @@ function closePopups() {
 }
 
 function notificationSound() {
-  notificationSoundSpan.innerHTML= "<embed src='./beep.mp3' hidden='true' autostart='true' loop='false' style='position:absolute; top:1px; right:1px; z-index:-500;'>";
+  notificationSoundSpan.innerHTML= "<embed src='./coin.wav' hidden='true' autostart='true' loop='false' style='position:absolute; top:1px; right:1px; z-index:-500;'>";
   setTimeout(function(){notificationSoundSpan.innerHTML = "";},1500);
 }
 
@@ -215,6 +217,9 @@ function checkEnterButton(e) {
     if (key == 13 && !e.shiftKey && document.activeElement === messageTextarea) {
         sendMessage();
         e.preventDefault();
+    }
+	else if (key == 13 && document.activeElement === bucketInput) {
+        bucket.send(bucketInput.value);
     }
 }
 

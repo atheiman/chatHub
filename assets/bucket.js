@@ -11,6 +11,8 @@ bucket = {
 			isShowingBucketInput = false;
 		}
 		socket.emit('send bucket', link );
+		
+		setTimeout(function(){bucketInput.value = "";}, 1400);
 	},
 	showInput: function() {
 	  // show input box

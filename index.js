@@ -46,13 +46,15 @@ io.on('connection', function(socket){
 		
 		if(usernames == null)
 			usernames = {};
-			
-		usernames[userId] = socket.username;
+				
+		usernames[userId] = { username:socket.username, isAway:false };
+		console.log(usernames);
 		rooms[room] = usernames;
 		console.log(rooms);
 		console.log(socket.username + " logged in with the ID: " + userId);
 		
-		io.to(room).emit('join room', { id:userId, username:socket.username, usernames:rooms[room] });
+		socket.emit('join room', { id:userId, username:socket.username, usernames:rooms[room] });
+		socket.broadcast.to(room).emit('user joined', { id:userId, username:socket.username, isAway:usernames[userId].isAway });
 	});
 
 	socket.on('username changed', function(username){
@@ -61,7 +63,7 @@ io.on('connection', function(socket){
 		console.log(rooms);
 		
 		var usernames = rooms[room];
-		usernames[userId] = username;
+		usernames[userId] = { username:socket.username, isAway:false };
 		
 		io.to(room).emit('changed name', { id:userId, username:socket.username });
 	});
@@ -77,8 +79,10 @@ io.on('connection', function(socket){
 	
 	socket.on('request join room', function(newRoom){
 	
+		//Tell socket to leave the old room and join the new room.
 		socket.join(newRoom);
 		socket.leave(room);
+		
 		room = newRoom;
 		
 		//Check if the default room already exits
@@ -88,19 +92,26 @@ io.on('connection', function(socket){
 			roomBuckets[room] = [];
 		}
 
+		//Grab the users in the room and check if anyone is in there.
+		//If no one is in there, create a new list.
 		var usernames = rooms[room];
-		
 		if(usernames == null)
 			usernames = {};
 			
-		usernames[userId] = socket.username;
+		//Add the current user to the list and the list to the room.
+		usernames[userId] = { username:socket.username, isAway:false };
 		rooms[room] = usernames;
 		
-		io.to(room).emit('join room', { id:userId, username:socket.username, usernames:rooms[room] });
+		//Emit to the joined user his unique id, username, and all the users currently in the room.
+		socket.emit('join room', { id:userId, username:socket.username, usernames:rooms[room] });
+		
+		//Emit to everyone else in the room who joined the room.
+		socket.broadcast.to(room).emit('user joined', { id:userId, username:socket.username, isAway:usernames[userId].isAway });
 		
 		console.log("Rooms: " + roomBuckets);
 		console.log("Buckets in room: " + roomBuckets[room].length);
 		
+		//If there are any buckets in the room, sent them to the user who joined the room.
 		if(roomBuckets[room].length > 0){
 			console.log("Sending buckets");
 			socket.emit('send bucketArray', roomBuckets[room]);
@@ -161,13 +172,25 @@ io.on('connection', function(socket){
 		io.to(room).emit('new bucketItem', bucketItem );
 	}
 	
+	socket.on('is away', function(){
+		usernames = rooms[room];
+		usernames[userId].isAway = true;
+		io.to(room).emit('user away', userId );
+	});
+	
+	socket.on('is back', function(){
+		usernames = rooms[room];
+		usernames[userId].isAway = false;
+		io.to(room).emit('user returned', userId );
+	});
+	
 	socket.on('disconnect', function(){
 		console.log('user disconnected');
 		
 		var usernames = rooms[room];
 		delete usernames[userId];
 		
-		io.to(room).emit('disconnected', userId);
+		socket.broadcast.to(room).emit('disconnected', userId);
 	});
 	
 	socket.on('left room', function(){
@@ -175,7 +198,7 @@ io.on('connection', function(socket){
 		var usernames = rooms[room];
 		delete usernames[userId];
 	
-		io.to(room).emit('disconnected', userId);
+		socket.broadcast.to(room).emit('disconnected', userId);
 	});
 });
 
