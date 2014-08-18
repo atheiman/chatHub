@@ -8,7 +8,7 @@ function generateNoun() {
 
 function generateAdj() {
     var adjectiveArray = [ "Blue", "Red", "Metal", "Angry", "Feisty", "Sad",
-        "Hungry", "Mellow", "Happy", "Erect", "Aroused", "Deliberate", "Frenzied" ];
+        "Hungry", "Mellow", "Happy", "Deliberate", "Frenzied" ];
     var adj = adjectiveArray[Math.floor(Math.random() * adjectiveArray.length)];
 
 return adj;
